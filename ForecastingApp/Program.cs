@@ -1,22 +1,33 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using System.Windows.Forms;
+using Python.Runtime;
 
 namespace ForecastingApp
 {
-    internal static class Program
+    static class Program
     {
-        /// <summary>
-        /// The main entry point for the application.
-        /// </summary>
         [STAThread]
         static void Main()
         {
+            // Set the Python runtime path before initializing PythonEngine
+            Environment.SetEnvironmentVariable("PYTHONNET_PYDLL", @"C:\Users\Rowen\AppData\Local\Programs\Python\Python310\python310.dll");
+
+            try
+            {
+                PythonEngine.Initialize(); // Initialize Python.NET
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Buh Python.NET Initialization Failed: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return; // Exit if Python.NET fails
+            }
+
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Form1());
+            Application.Run(new MainForm());
+
+            // Shutdown Python.NET when closing the application
+            PythonEngine.Shutdown();
         }
     }
 }
