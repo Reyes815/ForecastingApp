@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -9,6 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Python.Runtime;
+using Newtonsoft.Json;
 
 namespace ForecastingApp
 {
@@ -48,65 +50,53 @@ namespace ForecastingApp
 
         private void ProcessCSVFile(string filePath)
         {
-            int columnCount = 0;
             try
             {
-                //using (Py.GIL())  // Acquire Python Global Interpreter Lock
-                //{
-                //    dynamic forecasting = Py.Import("forecasting"); // Import forecasting.py
-                //    dynamic model = forecasting.ForecastModel(filePath);
+                // Start the Python process
+                ProcessStartInfo psi = new ProcessStartInfo();
+                psi.FileName = @"C:\Python312\python.exe";  // Adjust Python path if needed
+                string scriptPath = Path.Combine(Application.StartupPath, "..", "..", "..", "Scripts", "process_dataset_csv.py");
+                psi.Arguments = $"\"{scriptPath}\" \"{filePath}\"";
+                psi.RedirectStandardOutput = true;
+                psi.UseShellExecute = false;
+                psi.CreateNoWindow = true;
 
-                //    model.preprocess_data();
-                //    model.train_model();
-                //    dynamic forecast = model.forecast(30); // Predict 30 days
-
-                //    // Display the forecasted results
-                //    label1.Text = "Forecast Results: " + forecast.ToString();
-                //}
-                using (StreamReader reader = new StreamReader(filePath))
+                using (Process process = new Process())
                 {
-                    if (!reader.EndOfStream)
+                    process.StartInfo = psi;
+                    process.Start();
+
+                    string output = process.StandardOutput.ReadToEnd();
+                    process.WaitForExit();
+
+                    // Parse the JSON output from the Python script
+                    var result = Newtonsoft.Json.JsonConvert.DeserializeObject<dynamic>(output);
+
+                    if (result["error"] != null)
                     {
-                        string headerLine = reader.ReadLine();
-                        if (!string.IsNullOrEmpty(headerLine))
-                        {
-                            // Assuming CSV columns are separated by commas.
-                            // If your CSV uses a different delimiter, replace ',' with the appropriate character.
-                            columnCount = headerLine.Split(',').Length;
+                        MessageBox.Show("Error: " + result["error"], "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
+                    }
 
-                            // Split the header to get column names
-                            string[] columnNames = headerLine.Split(',');
+                    // Display results
+                    label2.Text = result["filename"];
+                    label3.Text = $"Instances: {result["instances"]}";
+                    label4.Text = $"Features Before Encoding: {result["features_before_encoding"]}";
 
-                            // Add each column name to the "Features" column
-                            foreach (string col in columnNames)
-                            {
-                                dataGridView1.Rows.Add(col.Trim(), "", "");  // Column 2 and 3 are left empty
-                            }
-                        }
+                    // Populate DataGridView
+                    dataGridView1.Rows.Clear();
+                    foreach (var column in result["columns"])
+                    {
+                        dataGridView1.Rows.Add(column["name"], column["type"], column["unique_values"]);
                     }
                 }
-
-                label2.Text = Path.GetFileNameWithoutExtension(filePath);
-
-                // Read all lines from the file
-                string[] allLines = File.ReadAllLines(filePath);
-
-                // Check if there is at least one line (the header)
-                if (allLines.Length > 0)
-                {
-                    // Subtract one for the header row
-                    int rowCount = allLines.Length - 1;
-                    label3.Text = $"Instances: {rowCount}";
-                }
-
-                label4.Text = $"Features Before Encoding: {columnCount}";
-
             }
             catch (Exception ex)
             {
                 MessageBox.Show("Error running Python script: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
+
 
 
         private void UploadMenuBtn(object sender, EventArgs e)
