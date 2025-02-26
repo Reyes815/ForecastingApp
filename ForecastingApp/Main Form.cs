@@ -44,6 +44,7 @@ namespace ForecastingApp
             dataGridView1.Columns.Add("Features", "Features");
             dataGridView1.Columns.Add("type", "Types");
             dataGridView1.Columns.Add("unique_vals", "Number of Unique Values");
+            dataGridView1.Columns.Add("category", "Category");
 
             dataGridView1.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
         }
@@ -87,7 +88,7 @@ namespace ForecastingApp
                     dataGridView1.Rows.Clear();
                     foreach (var column in result["columns"])
                     {
-                        dataGridView1.Rows.Add(column["name"], column["type"], column["unique_values"]);
+                        dataGridView1.Rows.Add(column["name"], column["type"], column["unique_values"], column["category"]);
                     }
                 }
             }

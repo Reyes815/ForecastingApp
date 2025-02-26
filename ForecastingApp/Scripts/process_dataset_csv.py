@@ -1,6 +1,7 @@
 import sys
 import pandas as pd
 import json
+from categorizing_features import categorize_features
 
 def process_csv(file_path):
     try:
@@ -16,13 +17,17 @@ def process_csv(file_path):
         # Get unique value counts
         unique_values = df.nunique().tolist()
 
+        # Categorize features
+        feature_categories = categorize_features(df)  # New step
+
         # Prepare results
         result = {
             "filename": file_path.split("/")[-1],  # Get filename from path
             "instances": len(df),
             "features_before_encoding": len(features),
             "columns": [
-                {"name": features[i], "type": data_types[i], "unique_values": unique_values[i]}
+                {"name": features[i], "type": data_types[i], "unique_values": unique_values[i], "category": feature_categories.get(features[i], "Unknown")  # Add categorized type
+                 }
                 for i in range(len(features))
             ]
         }
