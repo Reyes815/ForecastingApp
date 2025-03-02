@@ -73,6 +73,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="LSTM_MODEL.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="LSTM_MODEL.Designer.cs">
+      <DependentUpon>LSTM_MODEL.cs</DependentUpon>
+    </Compile>
     <Compile Include="XGBoost.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -87,6 +93,9 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="LSTM_MODEL.resx">
+      <DependentUpon>LSTM_MODEL.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="XGBoost.resx">
       <DependentUpon>XGBoost.cs</DependentUpon>
     </EmbeddedResource>

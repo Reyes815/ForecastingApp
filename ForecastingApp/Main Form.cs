@@ -16,6 +16,9 @@ namespace ForecastingApp
 {
     public partial class MainForm : Form
     {
+
+        private string selected_model = "";
+
         public MainForm()
         {
             InitializeComponent();
@@ -47,6 +50,18 @@ namespace ForecastingApp
             dataGridView1.Columns.Add("category", "Category");
 
             dataGridView1.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+        }
+
+        private void radioButton_CheckedChanged(object sender, EventArgs e)
+        {
+            // Cast sender to RadioButton
+            RadioButton rb = sender as RadioButton;
+
+            // Check if the RadioButton is checked
+            if (rb != null && rb.Checked)
+            {
+                selected_model = rb.Text; // Store the selected value
+            }
         }
 
         private void ProcessCSVFile(string filePath)
@@ -130,6 +145,31 @@ namespace ForecastingApp
         private void label7_Click(object sender, EventArgs e)
         {
 
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            switch(selected_model)
+            {
+                case "LSTM":
+                    this.Hide();
+                    LSTM_MODEL newLSTM_FORM = new LSTM_MODEL(this);
+                    newLSTM_FORM.Show();
+                    break;
+                case "XGBoost":
+                    this.Hide();
+                    //LSTM_MODEL newLSTM_FORM = new LSTM_MODEL();
+                    //newLSTM_FORM.Show();
+                    break;
+                case "Prophet":
+                    this.Hide();
+                    //LSTM_MODEL newLSTM_FORM = new LSTM_MODEL();
+                    //newLSTM_FORM.Show();
+                    break;
+                default:
+                    break;
+            }
+            
         }
     }
 }
