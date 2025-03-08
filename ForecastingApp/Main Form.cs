@@ -70,7 +70,8 @@ namespace ForecastingApp
             {
                 // Start the Python process
                 ProcessStartInfo psi = new ProcessStartInfo();
-                psi.FileName = @"C:\Python312\python.exe";  // Adjust Python path if needed
+                psi.FileName = @"C:\Users\LENOVO\AppData\Local\Programs\Python\Python312\python.exe";
+                //psi.FileName = @"C:\Python312\python.exe";  // Adjust Python path if needed
                 string scriptPath = Path.Combine(Application.StartupPath, "..", "..", "..", "Scripts", "process_dataset_csv.py");
                 psi.Arguments = $"\"{scriptPath}\" \"{filePath}\"";
                 psi.RedirectStandardOutput = true;
@@ -113,7 +114,7 @@ namespace ForecastingApp
             }
         }
 
-
+        private string selectedCSVFile = "";
 
         private void UploadMenuBtn(object sender, EventArgs e)
         {
@@ -132,6 +133,7 @@ namespace ForecastingApp
                     string filePath = openFileDialog.FileName;
 
                     // You can now process the CSV file (e.g., read it into your application)
+                    selectedCSVFile = openFileDialog.FileName;
                     ProcessCSVFile(filePath);
                 }
             }
@@ -160,6 +162,8 @@ namespace ForecastingApp
                     this.Hide();
                     //LSTM_MODEL newLSTM_FORM = new LSTM_MODEL();
                     //newLSTM_FORM.Show();
+                    XGBoost new_xGBoost = new XGBoost(this, selectedCSVFile);
+                    new_xGBoost.Show();
                     break;
                 case "Prophet":
                     this.Hide();
@@ -167,6 +171,7 @@ namespace ForecastingApp
                     //newLSTM_FORM.Show();
                     break;
                 default:
+                    MessageBox.Show("Please select a model first.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     break;
             }
             

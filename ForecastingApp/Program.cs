@@ -10,7 +10,9 @@ namespace ForecastingApp
         static void Main()
         {
             // Set the Python runtime path before initializing PythonEngine
-            Environment.SetEnvironmentVariable("PYTHONNET_PYDLL", @"C:\Python312\python312.dll");
+            //Environment.SetEnvironmentVariable("PYTHONNET_PYDLL", @"C:\Python312\python312.dll");
+            Environment.SetEnvironmentVariable("PYTHONNET_PYDLL", @"C:\Users\LENOVO\AppData\Local\Programs\Python\Python312\python312.dll");
+
 
             try
             {
