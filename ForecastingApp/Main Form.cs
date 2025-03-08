@@ -18,6 +18,7 @@ namespace ForecastingApp
     {
 
         private string selected_model = "";
+        private string filePath = "";
 
         public MainForm()
         {
@@ -129,7 +130,7 @@ namespace ForecastingApp
                 if (openFileDialog.ShowDialog() == DialogResult.OK)
                 {
                     // Get the selected file path
-                    string filePath = openFileDialog.FileName;
+                    filePath = openFileDialog.FileName;
 
                     // You can now process the CSV file (e.g., read it into your application)
                     ProcessCSVFile(filePath);
@@ -163,8 +164,8 @@ namespace ForecastingApp
                     break;
                 case "Prophet":
                     this.Hide();
-                    //LSTM_MODEL newLSTM_FORM = new LSTM_MODEL();
-                    //newLSTM_FORM.Show();
+                    ProphetModel newProphetModel = new ProphetModel(filePath);
+                    newProphetModel.Show();
                     break;
                 default:
                     break;

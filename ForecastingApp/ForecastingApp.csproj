@@ -73,6 +73,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ProphetModel.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ProphetModel.Designer.cs">
+      <DependentUpon>ProphetModel.cs</DependentUpon>
+    </Compile>
     <Compile Include="LSTM_MODEL.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -95,6 +101,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="LSTM_MODEL.resx">
       <DependentUpon>LSTM_MODEL.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ProphetModel.resx">
+      <DependentUpon>ProphetModel.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="XGBoost.resx">
       <DependentUpon>XGBoost.cs</DependentUpon>
