@@ -31,7 +31,7 @@ namespace ForecastingApp
             try
             {
                 System.Diagnostics.ProcessStartInfo psi = new System.Diagnostics.ProcessStartInfo();
-                psi.FileName = @"C:\Python312\python.exe"; // Ensure Python is in the system PATH
+                //psi.FileName = @"C:\Python312\python.exe"; // Ensure Python is in the system PATH
 
                 // Pass the file path as an argument to the script
                 string scriptPath = Path.Combine(Application.StartupPath, "..", "..", "..", "Scripts", "Prophet_forecast.py");

@@ -87,7 +87,7 @@ namespace ForecastingApp
 
         private void button1_Click(object sender, EventArgs e)
         {
-            RunPythonScript();
+            //RunPythonScript();
         }
 
         private void Lags_TextChanged(object sender, EventArgs e)

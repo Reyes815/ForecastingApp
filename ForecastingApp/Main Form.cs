@@ -70,14 +70,29 @@ namespace ForecastingApp
             try
             {
                 // Start the Python process
-                ProcessStartInfo psi = new ProcessStartInfo();
-                psi.FileName = @"C:\Users\LENOVO\AppData\Local\Programs\Python\Python312\python.exe";
-                //psi.FileName = @"C:\Python312\python.exe";  // Adjust Python path if needed
+                //ProcessStartInfo psi = new ProcessStartInfo();
+                //psi.FileName = @"C:\Users\LENOVO\AppData\Local\Programs\Python\Python312\python.exe";
+                ////psi.FileName = @"C:\Python312\python.exe";  // Adjust Python path if needed
+                //string scriptPath = Path.Combine(Application.StartupPath, "..", "..", "..", "Scripts", "process_dataset_csv.py");
+                //psi.Arguments = $"\"{scriptPath}\" \"{filePath}\"";
+                //psi.RedirectStandardOutput = true;
+                //psi.UseShellExecute = false;
+                //psi.CreateNoWindow = true;
+
+                string projectRoot = Directory.GetParent(Directory.GetCurrentDirectory()).Parent.Parent.FullName;
+                string pythonExecutable = Path.Combine(projectRoot, "Scripts", "python_env", "Scripts", "python.exe");
                 string scriptPath = Path.Combine(Application.StartupPath, "..", "..", "..", "Scripts", "process_dataset_csv.py");
-                psi.Arguments = $"\"{scriptPath}\" \"{filePath}\"";
-                psi.RedirectStandardOutput = true;
-                psi.UseShellExecute = false;
-                psi.CreateNoWindow = true;
+
+
+                ProcessStartInfo psi = new ProcessStartInfo
+                {
+                    FileName = pythonExecutable,
+                    Arguments = $"\"{scriptPath}\" \"{filePath}\"", // Your Python script
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    UseShellExecute = false,
+                    CreateNoWindow = true
+                };
 
                 using (Process process = new Process())
                 {
@@ -152,7 +167,7 @@ namespace ForecastingApp
 
         private void button1_Click(object sender, EventArgs e)
         {
-            switch(selected_model)
+            switch (selected_model)
             {
                 case "LSTM":
                     this.Hide();
@@ -175,7 +190,7 @@ namespace ForecastingApp
                     MessageBox.Show("Please select a model first.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     break;
             }
-            
+
         }
     }
 }
