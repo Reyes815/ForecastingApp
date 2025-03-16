@@ -25,18 +25,6 @@ namespace ForecastingApp
             InitializeComponent();
 
             InitializeDataGridView();
-
-            //Environment.SetEnvironmentVariable("PYTHONNET_PYDLL", @"C:\Users\Rowen\AppData\Local\Programs\Python\Python310\python310.dll");
-
-            //try
-            //{
-            //    PythonEngine.Initialize();
-            //    MessageBox.Show("Python.NET Initialized Successfully!");
-            //}
-            //catch (Exception ex)
-            //{
-            //    MessageBox.Show("Python.NET Initialization Failed: " + ex.Message);
-            //}
         }
 
         private void InitializeDataGridView()
@@ -68,17 +56,7 @@ namespace ForecastingApp
         private void ProcessCSVFile(string filePath)
         {
             try
-            {
-                // Start the Python process
-                //ProcessStartInfo psi = new ProcessStartInfo();
-                //psi.FileName = @"C:\Users\LENOVO\AppData\Local\Programs\Python\Python312\python.exe";
-                ////psi.FileName = @"C:\Python312\python.exe";  // Adjust Python path if needed
-                //string scriptPath = Path.Combine(Application.StartupPath, "..", "..", "..", "Scripts", "process_dataset_csv.py");
-                //psi.Arguments = $"\"{scriptPath}\" \"{filePath}\"";
-                //psi.RedirectStandardOutput = true;
-                //psi.UseShellExecute = false;
-                //psi.CreateNoWindow = true;
-
+            { 
                 string projectRoot = Directory.GetParent(Directory.GetCurrentDirectory()).Parent.Parent.FullName;
                 string pythonExecutable = Path.Combine(projectRoot, "Scripts", "python_env", "Scripts", "python.exe");
                 string scriptPath = Path.Combine(Application.StartupPath, "..", "..", "..", "Scripts", "process_dataset_csv.py");
