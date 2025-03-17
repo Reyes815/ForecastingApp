@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using Python.Runtime;
 using Newtonsoft.Json;
+using System.Reflection.Emit;
 
 namespace ForecastingApp
 {
@@ -36,6 +37,7 @@ namespace ForecastingApp
             dataGridView1.Columns.Add("Features", "Features");
             dataGridView1.Columns.Add("type", "Types");
             dataGridView1.Columns.Add("unique_vals", "Number of Unique Values");
+            dataGridView1.Columns.Add("null_vals", "Number of Null Values");
             dataGridView1.Columns.Add("category", "Category");
 
             dataGridView1.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
@@ -56,7 +58,7 @@ namespace ForecastingApp
         private void ProcessCSVFile(string filePath)
         {
             try
-            { 
+            {
                 string projectRoot = Directory.GetParent(Directory.GetCurrentDirectory()).Parent.Parent.FullName;
                 string pythonExecutable = Path.Combine(projectRoot, "Scripts", "python_env", "Scripts", "python.exe");
                 string scriptPath = Path.Combine(Application.StartupPath, "..", "..", "..", "Scripts", "process_dataset_csv.py");
@@ -93,12 +95,13 @@ namespace ForecastingApp
                     label2.Text = result["filename"];
                     label3.Text = $"Instances: {result["instances"]}";
                     label4.Text = $"Features Before Encoding: {result["features_before_encoding"]}";
+                    label8.Text = $"Features After Encoding: {result["features_after_encoding"]}";
 
                     // Populate DataGridView
                     dataGridView1.Rows.Clear();
                     foreach (var column in result["columns"])
                     {
-                        dataGridView1.Rows.Add(column["name"], column["type"], column["unique_values"], column["category"]);
+                        dataGridView1.Rows.Add(column["name"], column["type"], column["unique_values"], column["null_values"], column["category"]);
                     }
                 }
             }
