@@ -40,6 +40,8 @@
             this.label5 = new System.Windows.Forms.Label();
             this.label6 = new System.Windows.Forms.Label();
             this.neuronslvl2_textbox = new System.Windows.Forms.TextBox();
+            this.target_dropdown = new System.Windows.Forms.ComboBox();
+            this.label7 = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // label1
@@ -63,7 +65,7 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(457, 69);
+            this.label3.Location = new System.Drawing.Point(428, 69);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(76, 16);
             this.label3.TabIndex = 2;
@@ -141,11 +143,30 @@
             this.neuronslvl2_textbox.Size = new System.Drawing.Size(177, 22);
             this.neuronslvl2_textbox.TabIndex = 11;
             // 
+            // target_dropdown
+            // 
+            this.target_dropdown.FormattingEnabled = true;
+            this.target_dropdown.Location = new System.Drawing.Point(539, 117);
+            this.target_dropdown.Name = "target_dropdown";
+            this.target_dropdown.Size = new System.Drawing.Size(177, 24);
+            this.target_dropdown.TabIndex = 12;
+            // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.Location = new System.Drawing.Point(428, 122);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(96, 16);
+            this.label7.TabIndex = 13;
+            this.label7.Text = "Target Feature";
+            // 
             // LSTM_MODEL
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.label7);
+            this.Controls.Add(this.target_dropdown);
             this.Controls.Add(this.neuronslvl2_textbox);
             this.Controls.Add(this.label6);
             this.Controls.Add(this.label5);
@@ -161,6 +182,7 @@
             this.Name = "LSTM_MODEL";
             this.Text = "LSTM_MODEL";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.LSTM_MODEL_CLOSE);
+            this.Load += new System.EventHandler(this.LSTM_Form_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -180,5 +202,7 @@
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.TextBox neuronslvl2_textbox;
+        private System.Windows.Forms.ComboBox target_dropdown;
+        private System.Windows.Forms.Label label7;
     }
 }

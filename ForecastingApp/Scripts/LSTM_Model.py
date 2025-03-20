@@ -1,9 +1,14 @@
 import pandas as pd
 import numpy as np
 import sys
+import pickle
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import LSTM, Dense
 from sklearn.preprocessing import MinMaxScaler
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+pd.set_option('display.max_columns', None)
 
 def build_lstm_model(neurons_layer1, neurons_layer2, time_steps, feature_count):
     model = Sequential([
@@ -14,8 +19,9 @@ def build_lstm_model(neurons_layer1, neurons_layer2, time_steps, feature_count):
     return model
 
 def main():
-    if len(sys.argv) != 6:
-        print("Usage: LSTM_Model.py <epochs> <neurons_layer1> <neurons_layer2> <batch_size> <time_steps>")
+    if len(sys.argv) != 8:
+        print(sys.argv)
+        print("Usage: LSTM_Model.py <epochs> <neurons_layer1> <neurons_layer2> <batch_size> <time_steps> <target_feature> <pickle_filename>")
         input("Enter to exit")
         sys.exit(1)
 
@@ -25,85 +31,25 @@ def main():
     neurons_layer2 = int(sys.argv[3])
     batch_size = int(sys.argv[4])
     timesteps = int(sys.argv[5])
+    target = sys.argv[6]
+    pickle_filename = sys.argv[7]
 
     print(f"Running LSTM model with {epochs} epochs, {neurons_layer1} neurons_lvl1, {neurons_layer2} neurons_lvl2, {batch_size} batch size, {timesteps} time steps.")
 
-    # Load the CSV data
-    df = pd.read_csv('C:\\Users\\gianl\\Downloads\\Nike Dataset.csv')  # Replace 'your_data.csv' with the actual file path
+    # Load preprocessed DataFrame
+    with open(pickle_filename, 'rb') as f:
+        df = pickle.load(f)
 
-    # One-hot encode the 'Beer_Style' column
-    df = pd.get_dummies(df, columns=['Product'], prefix='Product')
+    # Extract feature columns (all except the target)
+    features = [col for col in df.columns if col != target]
 
-    df = pd.get_dummies(df, columns=['Region'], prefix='Region')
+    # Ensure the target exists
+    if target not in df.columns:
+        print(f"Error: Target feature '{target}' not found in dataset.")
+        input("sdfsdfsdf")
+        sys.exit(1)
 
-    df = pd.get_dummies(df, columns=['Retailer'], prefix='Retailer')
-
-    df = pd.get_dummies(df, columns=['Sales Method'], prefix='Sales_Method')
-
-    df = pd.get_dummies(df, columns=['State'], prefix='State')
-
-    # print(df.head())
-
-
-    # Set pandas to display more columns (you can set it to None for unlimited display)
-    pd.set_option('display.max_columns', None)
-
-    columns_to_scale = [
-        'Price per Unit', 'Total Sales', 'Units Sold'  ]
-
-
-    df_to_scale = df[columns_to_scale]
-
-    scaler = MinMaxScaler()
-
-    print('Before scaling:\n', df.head(), '\n\n')
-
-    # Fit and transform the data
-    scaled_data = scaler.fit_transform(df_to_scale)
-
-    # Convert scaled data back to a DataFrame
-    scaled_df = pd.DataFrame(scaled_data, columns=columns_to_scale)
-
-    # Replace original columns with scaled data
-    df[columns_to_scale] = scaled_df
-
-    print('After scaling:\n', df.head())
-
-    # Convert 'Invoice Date' to datetime
-    df['Invoice Date'] = pd.to_datetime(df['Invoice Date'], format='%d-%m-%Y')
-
-    # Sort by 'Invoice Date'
-    df.sort_values('Invoice Date', inplace=True)
-
-    # Convert 'Invoice Date' to numeric (seconds since the epoch)
-    df['Invoice Date_Numeric'] = df['Invoice Date'].astype('int64') / 1e9
-
-    # print(df.head())
-
-
-    features = ['Invoice Date_Numeric', 'Price per Unit',
-                "Product_Men's Apparel", "Product_Men's Athletic Footwear",
-                "Product_Men's Street Footwear", "Product_Women's Apparel",
-                "Product_Women's Athletic Footwear", "Product_Women's Street Footwear",
-                'Region_Midwest', 'Region_Northeast', 'Region_South', 'Region_Southeast',
-                'Region_West', 'Retailer_Amazon', 'Retailer_Foot Locker',
-                "Retailer_Kohl's", 'Retailer_Sports Direct', 'Retailer_Walmart',
-                'Retailer_West Gear', 'Sales_Method_In-store', 'Sales_Method_Online',
-                'Sales_Method_Outlet', 'State_Alabama', 'State_Arizona', 'State_Arkansas',
-                'State_California', 'State_Colorado', 'State_Connecticut', 'State_Delaware',
-                'State_Florida', 'State_Georgia', 'State_Idaho', 'State_Illinois', 'State_Indiana',
-                'State_Iowa', 'State_Kansas', 'State_Kentucky', 'State_Louisiana', 'State_Maine',
-                'State_Maryland', 'State_Massachusetts', 'State_Michigan', 'State_Minnesota',
-                'State_Mississippi', 'State_Missouri', 'State_Montana', 'State_Nebraska', 'State_Nevada',
-                'State_New Hampshire', 'State_New Jersey', 'State_New Mexico',
-                'State_New York', 'State_North Carolina', 'State_North Dakota',
-                'State_Ohio', 'State_Oklahoma', 'State_Oregon', 'State_Pennsylvania',
-                'State_Rhode Island', 'State_South Carolina', 'State_South Dakota',
-                'State_Tennessee', 'State_Texas', 'State_Utah', 'State_Vermont',
-                'State_Virginia', 'State_Washington', 'State_West Virginia',
-                'State_Wisconsin', 'State_Wyoming']
-
-    target = 'Total Sales'
+    # target = 'Total Sales'
 
     X = df[features].values
     y = df[target].values
@@ -119,7 +65,7 @@ def main():
     # time_steps = 10
     X_seq, y_seq = create_sequences(X, y, timesteps)
 
-    split = int(0.8 * len(X_seq))
+    split = int(0.75 * len(X_seq))
     X_train, X_test = X_seq[:split], X_seq[split:]
     y_train, y_test = y_seq[:split], y_seq[split:]
 
@@ -128,25 +74,60 @@ def main():
     y_train = y_train.astype(np.float32)
     y_test = y_test.astype(np.float32)
 
-
-    # model = Sequential([
-    #     LSTM(64, activation='relu', return_sequences=True, input_shape=(timesteps, len(features))),
-    #     LSTM(32, activation='relu'),
-    #     Dense(1)
-    # ])
-
     model = build_lstm_model(neurons_layer1, neurons_layer2, timesteps, len(features))
 
     model.compile(optimizer='adam', loss='mse', metrics=['mae'])
 
-    model.fit(X_train, y_train, validation_data=(X_test, y_test), epochs=epochs, batch_size=batch_size)
+    # model.fit(X_train, y_train, validation_data=(X_test, y_test), epochs=epochs, batch_size=batch_size)
 
+    # loss, mae = model.evaluate(X_test, y_test)
+    # print(f"Test Loss: {loss}, Test MAE: {mae}")
+    #
+    # y_pred = model.predict(X_test)
+    # Train the model and store history
+    history = model.fit(X_train, y_train, validation_data=(X_test, y_test), epochs=epochs, batch_size=batch_size)
+
+    # Evaluate the model
     loss, mae = model.evaluate(X_test, y_test)
     print(f"Test Loss: {loss}, Test MAE: {mae}")
 
+    # Make predictions
     y_pred = model.predict(X_test)
+
+    # # Training vs. Validation Loss
+    # plt.figure(figsize=(10, 5))
+    # plt.plot(history.history['loss'], label='Training Loss', color='blue')
+    # plt.plot(history.history['val_loss'], label='Validation Loss', color='red')
+    # plt.xlabel('Epochs')
+    # plt.ylabel('Loss (MSE)')
+    # plt.title('Training vs. Validation Loss')
+    # plt.legend()
+    # plt.savefig("training_vs_validation_loss.png")  # Save as PNG
+    # plt.close()  # Close the figure to free memory
+    #
+    # # Actual vs Predicted Values
+    # plt.figure(figsize=(10, 5))
+    # plt.plot(y_test, label="Actual", color="blue", alpha=0.7)
+    # plt.plot(y_pred, label="Predicted", color="red", alpha=0.7)
+    # plt.xlabel('Time')
+    # plt.ylabel('Sales Quantity')
+    # plt.title('Actual vs Predicted Sales')
+    # plt.legend()
+    # plt.savefig("actual_vs_predicted.png")
+    # plt.close()
+    #
+    # # Residual Plot (Errors)
+    # errors = y_test - y_pred.reshape(-1)
+    # plt.figure(figsize=(10, 5))
+    # sns.histplot(errors, bins=50, kde=True, color="purple")
+    # plt.xlabel("Prediction Error")
+    # plt.ylabel("Frequency")
+    # plt.title("Residual Distribution")
+    # plt.savefig("residual_distribution.png")
+    # plt.close()
 
     input("Press Enter to exit...")
 
 if __name__ == "__main__":
     main()
+    # input("sdfsdfsdf")

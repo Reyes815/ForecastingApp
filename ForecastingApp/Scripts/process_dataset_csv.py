@@ -6,6 +6,31 @@ import pickle
 from sklearn.preprocessing import MinMaxScaler
 from categorizing_features import categorize_features
 
+
+def remove_text_columns(df):
+    """Removes text-based (object) columns from the dataset."""
+    text_columns = df.select_dtypes(include=['object']).columns.tolist()
+
+    if text_columns:
+        df.drop(columns=text_columns, inplace=True)
+
+    return df, text_columns  # Return modified df and removed columns
+
+def convert_datetime_columns(df):
+    """Detects datetime columns and converts them into numerical features."""
+    datetime_columns = [col for col in df.select_dtypes(include=['datetime'])]
+
+    if datetime_columns:
+        # Sort DataFrame by the first datetime column
+        df = df.sort_values(by=datetime_columns[0])
+
+        # Convert datetime columns to Unix timestamp
+        for col in datetime_columns:
+            df[f"{col}_timestamp"] = df[col].astype('int64') // 10 ** 9  # Convert to seconds
+            df.drop(columns=[col], inplace=True)  # Remove original datetime column
+
+    return df
+
 def detect_id_column(df):
     """Detects and removes an ID column based on naming and uniqueness."""
     id_candidates = [col for col in df.columns if "id" in col.lower()]
@@ -23,11 +48,6 @@ def process_csv(file_path):
         # Load the CSV file
         df = pd.read_csv(file_path)
 
-        # Detect and remove ID column
-        id_column = detect_id_column(df)
-        if id_column:
-            df.drop(columns=[id_column], inplace=True)
-
         # Extract feature names
         features = df.columns.tolist()
 
@@ -43,6 +63,9 @@ def process_csv(file_path):
         # Categorize features
         feature_categories = categorize_features(df)  # New step
 
+        # Convert datetime columns into numerical features
+        df = convert_datetime_columns(df)
+
         categorical_features = [col for col in df.columns if feature_categories.get(col, "Unknown") == "Categorical (Nominal)"]
         df_encoded = pd.get_dummies(df, columns=categorical_features)
 
@@ -54,9 +77,17 @@ def process_csv(file_path):
         scaler = MinMaxScaler()
         df_encoded[numerical_features] = scaler.fit_transform(df_encoded[numerical_features])
 
+        # Detect and remove ID column
+        id_column = detect_id_column(df_encoded)
+        if id_column:
+            df_encoded.drop(columns=[id_column], inplace=True)
+
+        # Remove text columns
+        df_encoded, removed_text_columns = remove_text_columns(df_encoded)
+
         # Create "Saved preprocessed csv" folder if it doesn't exist
-        save_dir = os.path.join(os.getcwd(), "Saved preprocessed csv")
-        os.makedirs(save_dir, exist_ok=True)
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        save_dir = os.path.join(script_dir, "Saved preprocessed csv")
 
         # Generate Pickle file path
         pickle_filename = os.path.splitext(os.path.basename(file_path))[0] + "_processed.pkl"
@@ -69,9 +100,11 @@ def process_csv(file_path):
         # Prepare results
         result = {
             "filename": file_path.split("/")[-1],  # Get filename from path
+            "saved_pickle": pickle_filename,
             "instances": len(df),
             "features_before_encoding": len(features),
             "features_after_encoding": len(df_encoded.columns),
+            "removed_text_columns": removed_text_columns,  # Track removed columns
             "columns": [
                 {"name": features[i],
                  "type": data_types[i],

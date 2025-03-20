@@ -20,6 +20,8 @@ namespace ForecastingApp
 
         private string selected_model = "";
         private string filePath = "";
+        private string selectedCSVFile = "";
+        private List<string> features = new List<string>();
 
         public MainForm()
         {
@@ -97,10 +99,17 @@ namespace ForecastingApp
                     label4.Text = $"Features Before Encoding: {result["features_before_encoding"]}";
                     label8.Text = $"Features After Encoding: {result["features_after_encoding"]}";
 
+
+                    this.selectedCSVFile = result["saved_pickle"];
+
+                    features.Clear();
+
                     // Populate DataGridView
                     dataGridView1.Rows.Clear();
                     foreach (var column in result["columns"])
                     {
+                        string featureName = column["name"].ToString();
+                        features.Add(featureName);
                         dataGridView1.Rows.Add(column["name"], column["type"], column["unique_values"], column["null_values"], column["category"]);
                     }
                 }
@@ -111,7 +120,6 @@ namespace ForecastingApp
             }
         }
 
-        private string selectedCSVFile = "";
 
         private void UploadMenuBtn(object sender, EventArgs e)
         {
@@ -152,7 +160,7 @@ namespace ForecastingApp
             {
                 case "LSTM":
                     this.Hide();
-                    LSTM_MODEL newLSTM_FORM = new LSTM_MODEL(this);
+                    LSTM_MODEL newLSTM_FORM = new LSTM_MODEL(this, this.selectedCSVFile, this.features);
                     newLSTM_FORM.Show();
                     break;
                 case "XGBoost":

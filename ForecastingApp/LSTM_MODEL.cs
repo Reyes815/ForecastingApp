@@ -16,10 +16,15 @@ namespace ForecastingApp
     public partial class LSTM_MODEL : Form
     {
         private MainForm mainForm;
-        public LSTM_MODEL(MainForm form)
+        private string cvs_filepath;
+        private List<string> features;
+        public LSTM_MODEL(MainForm form, string selectedcsv, List<string> processed_features)
         {
             InitializeComponent();
             mainForm = form;
+            cvs_filepath = selectedcsv;
+            features = processed_features;
+            
         }
 
         private void LSTM_MODEL_CLOSE(object sender, FormClosedEventArgs e)
@@ -33,6 +38,7 @@ namespace ForecastingApp
             {
                 string projectRoot = Directory.GetParent(Directory.GetCurrentDirectory()).Parent.Parent.FullName;
                 string pythonExecutable = Path.Combine(projectRoot, "Scripts", "python_env", "Scripts", "python.exe");
+                string picklefilepath = Path.Combine(projectRoot, "Scripts", "Saved preprocessed csv", $"{cvs_filepath}");
                 string scriptPath = Path.Combine(Application.StartupPath, "..", "..", "..", "Scripts", "LSTM_Model.py");
 
                 string epochs = epoch_textbox.Text;
@@ -40,8 +46,9 @@ namespace ForecastingApp
                 string neuronslvl2 = neuronslvl2_textbox.Text;
                 string batchSize = batchsize_textbox.Text;
                 string timeSteps = timesteps_textbox.Text;
+                string target = target_dropdown.Text;
 
-                string arguments = $"\"{scriptPath}\" {epochs} {neuronslvl1} {neuronslvl2} {batchSize} {timeSteps}";
+                string arguments = $"\"{scriptPath}\" {epochs} {neuronslvl1} {neuronslvl2} {batchSize} {timeSteps} \"{target}\" \"{picklefilepath}\"";
 
 
                 ProcessStartInfo psi = new ProcessStartInfo
@@ -64,6 +71,17 @@ namespace ForecastingApp
         private void button1_Click(object sender, EventArgs e)
         {
             RunPythonPrediction();
+        }
+
+        private void LSTM_Form_Load(object sender, EventArgs e)
+        {
+            // Set default values for textboxes
+            epoch_textbox.Text = "50";
+            neuronslvl1_textbox.Text = "64";
+            neuronslvl2_textbox.Text = "32";
+            batchsize_textbox.Text = "16";
+            timesteps_textbox.Text = "5";
+            target_dropdown.Items.AddRange(features.ToArray());
         }
     }
 
