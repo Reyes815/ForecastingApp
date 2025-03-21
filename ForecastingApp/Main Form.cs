@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using Python.Runtime;
 using Newtonsoft.Json;
+using System.Reflection.Emit;
 
 namespace ForecastingApp
 {
@@ -18,6 +19,9 @@ namespace ForecastingApp
     {
 
         private string selected_model = "";
+        private string filePath = "";
+        private string selectedCSVFile = "";
+        private List<string> features = new List<string>();
 
         public MainForm()
         {
@@ -47,6 +51,7 @@ namespace ForecastingApp
             dataGridView1.Columns.Add("Features", "Features");
             dataGridView1.Columns.Add("type", "Types");
             dataGridView1.Columns.Add("unique_vals", "Number of Unique Values");
+            dataGridView1.Columns.Add("null_vals", "Number of Null Values");
             dataGridView1.Columns.Add("category", "Category");
 
             dataGridView1.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
@@ -68,16 +73,6 @@ namespace ForecastingApp
         {
             try
             {
-                // Start the Python process
-                //ProcessStartInfo psi = new ProcessStartInfo();
-                //psi.FileName = @"C:\Users\LENOVO\AppData\Local\Programs\Python\Python312\python.exe";
-                ////psi.FileName = @"C:\Python312\python.exe";  // Adjust Python path if needed
-                //string scriptPath = Path.Combine(Application.StartupPath, "..", "..", "..", "Scripts", "process_dataset_csv.py");
-                //psi.Arguments = $"\"{scriptPath}\" \"{filePath}\"";
-                //psi.RedirectStandardOutput = true;
-                //psi.UseShellExecute = false;
-                //psi.CreateNoWindow = true;
-
                 string projectRoot = Directory.GetParent(Directory.GetCurrentDirectory()).Parent.Parent.FullName;
                 string pythonExecutable = Path.Combine(projectRoot, "Scripts", "python_env", "Scripts", "python.exe");
                 string scriptPath = Path.Combine(Application.StartupPath, "..", "..", "..", "Scripts", "process_dataset_csv.py");
@@ -114,12 +109,20 @@ namespace ForecastingApp
                     label2.Text = result["filename"];
                     label3.Text = $"Instances: {result["instances"]}";
                     label4.Text = $"Features Before Encoding: {result["features_before_encoding"]}";
+                    label8.Text = $"Features After Encoding: {result["features_after_encoding"]}";
+
+
+                    this.selectedCSVFile = result["saved_pickle"];
+
+                    features.Clear();
 
                     // Populate DataGridView
                     dataGridView1.Rows.Clear();
                     foreach (var column in result["columns"])
                     {
-                        dataGridView1.Rows.Add(column["name"], column["type"], column["unique_values"], column["category"]);
+                        string featureName = column["name"].ToString();
+                        features.Add(featureName);
+                        dataGridView1.Rows.Add(column["name"], column["type"], column["unique_values"], column["null_values"], column["category"]);
                     }
                 }
             }
@@ -129,7 +132,6 @@ namespace ForecastingApp
             }
         }
 
-        private string selectedCSVFile = "";
 
         private void UploadMenuBtn(object sender, EventArgs e)
         {
@@ -167,7 +169,7 @@ namespace ForecastingApp
             {
                 case "LSTM":
                     this.Hide();
-                    LSTM_MODEL newLSTM_FORM = new LSTM_MODEL(this);
+                    LSTM_MODEL newLSTM_FORM = new LSTM_MODEL(this, this.selectedCSVFile, this.features);
                     newLSTM_FORM.Show();
                     break;
                 case "XGBoost":

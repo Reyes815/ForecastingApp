@@ -53,7 +53,8 @@ namespace ForecastingApp
                 using (Py.GIL()) // Acquire Global Interpreter Lock (GIL)
                 {
                     dynamic sys = Py.Import("sys");
-                    sys.path.append(@"C:\Users\LENOVO\Source\Repos\ForecastingApp\ForecastingApp\Scripts");
+                    //sys.path.append(@"C:\Users\LENOVO\Source\Repos\ForecastingApp\ForecastingApp\Scripts");
+                    sys.path.append(@"C:\Users\gianl\source\repos\ForecastingApp\ForecastingApp\Scripts");
 
                     dynamic train_model = Py.Import("xgboost_forecasting");
 
@@ -87,7 +88,7 @@ namespace ForecastingApp
 
         private void button1_Click(object sender, EventArgs e)
         {
-            //RunPythonScript();
+            RunPythonScript();
         }
 
         private void Lags_TextChanged(object sender, EventArgs e)

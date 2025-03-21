@@ -12,11 +12,6 @@ namespace ForecastingApp
         static void Main()
         {
             // Set the Python runtime path before initializing PythonEngine
-            //Environment.SetEnvironmentVariable("PYTHONNET_PYDLL", @"C:\Python312\python312.dll");
-            //Environment.SetEnvironmentVariable("PYTHONNET_PYDLL", @"C:\Users\LENOVO\AppData\Local\Programs\Python\Python312\python312.dll");
-            //string projectRoot = Directory.GetParent(Directory.GetCurrentDirectory()).Parent.Parent.FullName;
-            //string pythonExecutable = Path.Combine(projectRoot, "Scripts", "python_env", "Scripts", "python.exe");
-            //Environment.SetEnvironmentVariable("PYTHONNET_PYDLL", pythonExecutable);
 
             string pythonPath = FindRealPython();
             if (pythonPath == null)
@@ -28,7 +23,7 @@ namespace ForecastingApp
             string pythonDll = Path.Combine(Path.GetDirectoryName(pythonPath), "python312.dll");
             if (File.Exists(pythonDll))
             {
-                MessageBox.Show($"Found python312.dll at: {pythonDll}");
+                //MessageBox.Show($"Found python312.dll at: {pythonDll}");
             }
             else
             {

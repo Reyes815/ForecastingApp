@@ -44,6 +44,7 @@
             this.label5 = new System.Windows.Forms.Label();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.uploadToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.label8 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -62,6 +63,7 @@
             // 
             // splitContainer1.Panel1
             // 
+            this.splitContainer1.Panel1.Controls.Add(this.label8);
             this.splitContainer1.Panel1.Controls.Add(this.button1);
             this.splitContainer1.Panel1.Controls.Add(this.panel1);
             this.splitContainer1.Panel1.Controls.Add(this.label4);
@@ -73,8 +75,8 @@
             // 
             this.splitContainer1.Panel2.Controls.Add(this.dataGridView1);
             this.splitContainer1.Panel2.Controls.Add(this.label5);
-            this.splitContainer1.Size = new System.Drawing.Size(1148, 507);
-            this.splitContainer1.SplitterDistance = 321;
+            this.splitContainer1.Size = new System.Drawing.Size(1331, 510);
+            this.splitContainer1.SplitterDistance = 372;
             this.splitContainer1.SplitterWidth = 5;
             this.splitContainer1.TabIndex = 0;
             // 
@@ -209,7 +211,7 @@
             this.dataGridView1.Name = "dataGridView1";
             this.dataGridView1.RowHeadersWidth = 51;
             this.dataGridView1.RowTemplate.Height = 24;
-            this.dataGridView1.Size = new System.Drawing.Size(793, 450);
+            this.dataGridView1.Size = new System.Drawing.Size(926, 450);
             this.dataGridView1.TabIndex = 1;
             // 
             // label5
@@ -230,7 +232,7 @@
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Padding = new System.Windows.Forms.Padding(5, 2, 0, 2);
-            this.menuStrip1.Size = new System.Drawing.Size(1148, 28);
+            this.menuStrip1.Size = new System.Drawing.Size(1331, 28);
             this.menuStrip1.TabIndex = 1;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -241,11 +243,20 @@
             this.uploadToolStripMenuItem.Text = "Upload";
             this.uploadToolStripMenuItem.Click += new System.EventHandler(this.UploadMenuBtn);
             // 
+            // label8
+            // 
+            this.label8.AutoSize = true;
+            this.label8.Location = new System.Drawing.Point(16, 126);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(44, 16);
+            this.label8.TabIndex = 6;
+            this.label8.Text = "label8";
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1148, 535);
+            this.ClientSize = new System.Drawing.Size(1331, 538);
             this.Controls.Add(this.splitContainer1);
             this.Controls.Add(this.menuStrip1);
             this.Margin = new System.Windows.Forms.Padding(4);
@@ -285,6 +296,7 @@
         private System.Windows.Forms.RadioButton radioButton3;
         private System.Windows.Forms.RadioButton radioButton2;
         private System.Windows.Forms.RadioButton radioButton1;
+        private System.Windows.Forms.Label label8;
     }
 }
 
