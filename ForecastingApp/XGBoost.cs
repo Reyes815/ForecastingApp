@@ -94,5 +94,10 @@ namespace ForecastingApp
         {
 
         }
+
+        private void XGBoost_Load(object sender, EventArgs e)
+        {
+
+        }
     }
 }

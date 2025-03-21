@@ -13,11 +13,13 @@ namespace ForecastingApp
 {
     public partial class ProphetModel : Form
     {
+        private MainForm mainForm;
         private string filePath;
 
-        public ProphetModel(string path)
+        public ProphetModel(MainForm mainForm, string path)
         {
             InitializeComponent();
+            this.mainForm = mainForm;
             this.filePath = path;
         }
 
@@ -61,6 +63,41 @@ namespace ForecastingApp
             {
                 MessageBox.Show("Error running Python script: " + ex.Message);
             }
+        }
+
+        private void label1_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void textBox1_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void textBox3_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void ProphetModel_Load(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label6_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void textBox8_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void radioButton6_CheckedChanged(object sender, EventArgs e)
+        {
+
         }
     }
 }

@@ -18,7 +18,6 @@ namespace ForecastingApp
     {
 
         private string selected_model = "";
-        private string filePath = "";
 
         public MainForm()
         {
@@ -145,12 +144,9 @@ namespace ForecastingApp
                 // Show the file dialog and check if the user clicked OK
                 if (openFileDialog.ShowDialog() == DialogResult.OK)
                 {
-                    // Get the selected file path
-                    filePath = openFileDialog.FileName;
-
                     // You can now process the CSV file (e.g., read it into your application)
                     selectedCSVFile = openFileDialog.FileName;
-                    ProcessCSVFile(filePath);
+                    ProcessCSVFile(selectedCSVFile);
                 }
             }
         }
@@ -183,7 +179,7 @@ namespace ForecastingApp
                     break;
                 case "Prophet":
                     this.Hide();
-                    ProphetModel newProphetModel = new ProphetModel(filePath);
+                    ProphetModel newProphetModel = new ProphetModel(this, selectedCSVFile);
                     newProphetModel.Show();
                     break;
                 default:
