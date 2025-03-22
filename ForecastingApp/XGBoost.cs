@@ -53,8 +53,8 @@ namespace ForecastingApp
                 using (Py.GIL()) // Acquire Global Interpreter Lock (GIL)
                 {
                     dynamic sys = Py.Import("sys");
-                    //sys.path.append(@"C:\Users\LENOVO\Source\Repos\ForecastingApp\ForecastingApp\Scripts");
-                    sys.path.append(@"C:\Users\gianl\source\repos\ForecastingApp\ForecastingApp\Scripts");
+                    sys.path.append(@"C:\Users\LENOVO\Source\Repos\ForecastingApp\ForecastingApp\Scripts");
+                    //sys.path.append(@"C:\Users\gianl\source\repos\ForecastingApp\ForecastingApp\Scripts");
 
                     dynamic train_model = Py.Import("xgboost_forecasting");
 

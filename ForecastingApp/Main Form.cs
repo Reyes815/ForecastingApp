@@ -20,6 +20,7 @@ namespace ForecastingApp
 
         private string selected_model = "";
         private string filePath = "";
+        private string rawCSVFile = "";
         private string selectedCSVFile = "";
         private List<string> features = new List<string>();
 
@@ -111,7 +112,6 @@ namespace ForecastingApp
                     label4.Text = $"Features Before Encoding: {result["features_before_encoding"]}";
                     label8.Text = $"Features After Encoding: {result["features_after_encoding"]}";
 
-
                     this.selectedCSVFile = result["saved_pickle"];
 
                     features.Clear();
@@ -148,6 +148,7 @@ namespace ForecastingApp
                 {
                     // You can now process the CSV file (e.g., read it into your application)
                     selectedCSVFile = openFileDialog.FileName;
+                    rawCSVFile = selectedCSVFile;
                     ProcessCSVFile(selectedCSVFile);
                 }
             }
@@ -176,7 +177,7 @@ namespace ForecastingApp
                     this.Hide();
                     //LSTM_MODEL newLSTM_FORM = new LSTM_MODEL();
                     //newLSTM_FORM.Show();
-                    XGBoost new_xGBoost = new XGBoost(this, selectedCSVFile);
+                    XGBoost new_xGBoost = new XGBoost(this, rawCSVFile);
                     new_xGBoost.Show();
                     break;
                 case "Prophet":
