@@ -94,37 +94,37 @@ def main():
     # Make predictions
     y_pred = model.predict(X_test)
 
-    # # Training vs. Validation Loss
-    # plt.figure(figsize=(10, 5))
-    # plt.plot(history.history['loss'], label='Training Loss', color='blue')
-    # plt.plot(history.history['val_loss'], label='Validation Loss', color='red')
-    # plt.xlabel('Epochs')
-    # plt.ylabel('Loss (MSE)')
-    # plt.title('Training vs. Validation Loss')
-    # plt.legend()
-    # plt.savefig("training_vs_validation_loss.png")  # Save as PNG
-    # plt.close()  # Close the figure to free memory
-    #
-    # # Actual vs Predicted Values
-    # plt.figure(figsize=(10, 5))
-    # plt.plot(y_test, label="Actual", color="blue", alpha=0.7)
-    # plt.plot(y_pred, label="Predicted", color="red", alpha=0.7)
-    # plt.xlabel('Time')
-    # plt.ylabel('Sales Quantity')
-    # plt.title('Actual vs Predicted Sales')
-    # plt.legend()
-    # plt.savefig("actual_vs_predicted.png")
-    # plt.close()
-    #
-    # # Residual Plot (Errors)
-    # errors = y_test - y_pred.reshape(-1)
-    # plt.figure(figsize=(10, 5))
-    # sns.histplot(errors, bins=50, kde=True, color="purple")
-    # plt.xlabel("Prediction Error")
-    # plt.ylabel("Frequency")
-    # plt.title("Residual Distribution")
-    # plt.savefig("residual_distribution.png")
-    # plt.close()
+    # Training vs. Validation Loss
+    plt.figure(figsize=(10, 5))
+    plt.plot(history.history['loss'], label='Training Loss', color='blue')
+    plt.plot(history.history['val_loss'], label='Validation Loss', color='red')
+    plt.xlabel('Epochs')
+    plt.ylabel('Loss (MSE)')
+    plt.title('Training vs. Validation Loss')
+    plt.legend()
+    plt.savefig("training_vs_validation_loss.png")  # Save as PNG
+    plt.close()  # Close the figure to free memory
+
+    # Actual vs Predicted Values
+    plt.figure(figsize=(10, 5))
+    plt.plot(y_test, label="Actual", color="blue", alpha=0.7)
+    plt.plot(y_pred, label="Predicted", color="red", alpha=0.7)
+    plt.xlabel('Time')
+    plt.ylabel('Sales Quantity')
+    plt.title('Actual vs Predicted Sales')
+    plt.legend()
+    plt.savefig("actual_vs_predicted.png")
+    plt.close()
+
+    # Residual Plot (Errors)
+    errors = y_test - y_pred.reshape(-1)
+    plt.figure(figsize=(10, 5))
+    sns.histplot(errors, bins=50, kde=True, color="purple")
+    plt.xlabel("Prediction Error")
+    plt.ylabel("Frequency")
+    plt.title("Residual Distribution")
+    plt.savefig("residual_distribution.png")
+    plt.close()
 
     input("Press Enter to exit...")
 
