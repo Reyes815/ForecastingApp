@@ -3,83 +3,80 @@ import pandas as pd
 import numpy as np
 from prophet import Prophet
 from sklearn.metrics import mean_absolute_error, mean_squared_error
+from sklearn.preprocessing import StandardScaler
 
-class ProphetForecast:
-    def __init__(self, csv_file):
-        self.csv_file = csv_file
-        self.df = None
-        self.model = None
-
-    def load_data(self):
-        """Load the dataset and preprocess the date column."""
-        try:
-            self.df = pd.read_csv(self.csv_file, parse_dates=['Date'], encoding='latin1', index_col='Date')
-            self.df = self.df.sort_values('Date')
-
-            # Convert dates properly
-            self.df.index = pd.to_datetime(self.df.index, format='%d-%m-%Y', errors='coerce')
-            self.df = self.df[self.df.index.notna()]  # Remove invalid dates
-
-            if 'Profit' not in self.df.columns:
-                raise ValueError("The dataset must contain a 'Profit' column.")
-
-            # Prepare Prophet-compatible format
-            self.df['ds'] = self.df.index
-            self.df['y'] = pd.to_numeric(self.df['Profit'], errors='coerce')
-            self.df = self.df.dropna(subset=['y'])
-
-            # Normalize 'y' values
-            self.df['y'] = (self.df['y'] - self.df['y'].mean()) / self.df['y'].std()
-
-        except Exception as e:
-            print(f"Error loading data: {e}")
-            sys.exit(1)
-
-    def train_model(self):
-        """Train the Prophet model on the dataset."""
-        train_size = int(0.8 * len(self.df))
-        train_data = self.df.iloc[:train_size][['ds', 'y']]
-
-        self.model = Prophet()
-        self.model.add_seasonality(name='monthly', period=30.5, fourier_order=5)
-        self.model.add_seasonality(name='weekly', period=7, fourier_order=3)
-        self.model.fit(train_data)
-
-    def forecast(self, periods=30):
-        """Generate a forecast for the specified number of periods."""
-        future = self.model.make_future_dataframe(periods=periods, freq='D')
-        forecast = self.model.predict(future)
-        return forecast[['ds', 'yhat', 'yhat_lower', 'yhat_upper']]
-
-    def evaluate_model(self):
-        """Evaluate the model's performance using MAE and RMSE."""
-        train_size = int(0.8 * len(self.df))
-        test_data = self.df.iloc[train_size:][['ds', 'y']]
-
-        if self.model is None:
-            raise ValueError("Model has not been trained. Call train_model() first.")
-
-        forecast = self.forecast(len(test_data))
-        forecast = forecast.iloc[-len(test_data):]
-
-        mae = mean_absolute_error(test_data['y'], forecast['yhat'])
-        rmse = np.sqrt(mean_squared_error(test_data['y'], forecast['yhat']))
-
-        return {"MAE": mae, "RMSE": rmse}
-
-if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        print("Usage: python prophet_forecast.py <csv_file_path>")
+def main():
+    if len(sys.argv) != 12:  # Fix: Expecting 12 arguments including script name
+        print("Usage: Prophet_forecast.py <csv_file> <period> <train> <test> <split> <weekly> <monthly> <holiday> <standardization> <growth> <seasonality_mode>")
         sys.exit(1)
 
-    csv_file = sys.argv[1]
+    try:
+        # Parse command-line arguments
+        csv_file = sys.argv[1]
+        period = int(sys.argv[2])
+        train_ratio = float(sys.argv[3])
+        test_ratio = float(sys.argv[4])
+        split_ratio = float(sys.argv[5])
+        weekly = sys.argv[6].lower() == 'true'
+        monthly = sys.argv[7].lower() == 'true'
+        holiday = sys.argv[8].lower() == 'true'
+        standardization = sys.argv[9].lower() == 'true'
+        growth = sys.argv[10]  # "linear" or "logistic"
+        seasonality_mode = sys.argv[11]  # "additive" or "multiplicative"
 
-    # Run Prophet forecast
-    model = ProphetForecast(csv_file)
-    model.load_data()
-    model.train_model()
-    forecast = model.forecast(60)  # Forecast for 60 days
-    evaluation = model.evaluate_model()
+        print(f"Running Prophet with period={period}, train={train_ratio}, test={test_ratio}, split={split_ratio}, weekly={weekly}, monthly={monthly}, holiday={holiday}, standardization={standardization}, growth={growth}, seasonality_mode={seasonality_mode}")
 
-    print(forecast.head())
-    print("Model Evaluation:", evaluation)
+        # Load dataset
+        df = pd.read_csv(csv_file, parse_dates=['Date'], encoding='latin1')
+        df = df.sort_values('Date')
+
+        # Ensure 'Profit' column exists
+        if 'Profit' not in df.columns:
+            raise ValueError("The dataset must contain a 'Profit' column.")
+
+        df['ds'] = pd.to_datetime(df['Date'])
+        df['y'] = pd.to_numeric(df['Profit'], errors='coerce')
+        df = df.dropna(subset=['y'])
+
+        # Standardize data if enabled
+        if standardization:
+            scaler = StandardScaler()
+            df['y'] = scaler.fit_transform(df[['y']])
+
+        # Split data into train/test
+        train_size = int(train_ratio * len(df))
+        train_data = df.iloc[:train_size][['ds', 'y']]
+        test_data = df.iloc[train_size:][['ds', 'y']]
+
+        # Initialize Prophet model
+        model = Prophet(growth=growth, seasonality_mode=seasonality_mode)
+
+        if weekly:
+            model.add_seasonality(name='weekly', period=7, fourier_order=3)
+        if monthly:
+            model.add_seasonality(name='monthly', period=30.5, fourier_order=5)
+
+        model.fit(train_data)
+
+        # Forecast
+        future = model.make_future_dataframe(periods=period, freq='D')
+        forecast = model.predict(future)
+
+        # Evaluate model
+        if len(test_data) > 0:
+            forecast_test = forecast.iloc[-len(test_data):]
+            mae = mean_absolute_error(test_data['y'], forecast_test['yhat'])
+            rmse = np.sqrt(mean_squared_error(test_data['y'], forecast_test['yhat']))
+            print(f"Model Evaluation: MAE = {mae:.4f}, RMSE = {rmse:.4f}")
+
+        print(forecast[['ds', 'yhat', 'yhat_lower', 'yhat_upper']].head())
+
+    except IndexError as e:
+        print(f"Error: Missing required arguments. Expected 11, got {len(sys.argv) - 1}. {e}")
+        sys.exit(1)
+    except Exception as e:
+        print(f"Error running Prophet: {e}")
+        sys.exit(1)
+
+if __name__ == "__main__":
+    main()

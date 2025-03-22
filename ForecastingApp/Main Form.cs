@@ -181,7 +181,7 @@ namespace ForecastingApp
                     break;
                 case "Prophet":
                     this.Hide();
-                    ProphetModel newProphetModel = new ProphetModel(this, selectedCSVFile);
+                    ProphetModel newProphetModel = new ProphetModel(this, selectedCSVFile, this.features);
                     newProphetModel.Show();
                     break;
                 default:
