@@ -1,12 +1,16 @@
+import json
+import time
 import pandas as pd
 import numpy as np
 import sys
 import pickle
+
+from sklearn.metrics import r2_score
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import LSTM, Dense
-from sklearn.preprocessing import MinMaxScaler
 import matplotlib.pyplot as plt
 import seaborn as sns
+import os
 
 pd.set_option('display.max_columns', None)
 
@@ -78,21 +82,45 @@ def main():
 
     model.compile(optimizer='adam', loss='mse', metrics=['mae'])
 
-    # model.fit(X_train, y_train, validation_data=(X_test, y_test), epochs=epochs, batch_size=batch_size)
+    # Start training timer
+    start_time = time.time()
 
-    # loss, mae = model.evaluate(X_test, y_test)
-    # print(f"Test Loss: {loss}, Test MAE: {mae}")
-    #
-    # y_pred = model.predict(X_test)
     # Train the model and store history
     history = model.fit(X_train, y_train, validation_data=(X_test, y_test), epochs=epochs, batch_size=batch_size)
 
+    # Stop timer
+    training_duration = time.time() - start_time
+
     # Evaluate the model
     loss, mae = model.evaluate(X_test, y_test)
-    print(f"Test Loss: {loss}, Test MAE: {mae}")
+    # print(f"Test Loss: {loss}, Test MAE: {mae}")
 
     # Make predictions
-    y_pred = model.predict(X_test)
+    y_pred = model.predict(X_test).reshape(-1)
+
+    # Calculate R^2 Score
+    r2 = r2_score(y_test, y_pred)
+
+    # Save evaluation metrics
+    metrics = {
+        "Loss (MSE)": round(loss, 4),
+        "Mean Absolute Error (MAE)": round(mae, 4),
+        "R² Score": round(r2, 4),
+        "Training Duration (seconds)": round(training_duration, 2)
+    }
+
+    metrics_folder = os.path.join(os.path.dirname(__file__), 'Metrics')
+    os.makedirs(metrics_folder, exist_ok=True)
+
+    metrics_path = os.path.join(metrics_folder, "lstm_metrics.json")
+    with open(metrics_path, 'w') as f:
+        json.dump(metrics, f, indent=4)
+
+    print("Metrics saved to: ", metrics_path)
+
+    # Create Graphs folder if it doesn't exist
+    graphs_folder = os.path.join(os.path.dirname(__file__), 'Graphs')
+    os.makedirs(graphs_folder, exist_ok=True)
 
     # Training vs. Validation Loss
     plt.figure(figsize=(10, 5))
@@ -102,7 +130,7 @@ def main():
     plt.ylabel('Loss (MSE)')
     plt.title('Training vs. Validation Loss')
     plt.legend()
-    plt.savefig("training_vs_validation_loss.png")  # Save as PNG
+    plt.savefig(os.path.join(graphs_folder, "training_vs_validation_loss.png"))  # Save as PNG
     plt.close()  # Close the figure to free memory
 
     # Actual vs Predicted Values
@@ -113,8 +141,10 @@ def main():
     plt.ylabel('Sales Quantity')
     plt.title('Actual vs Predicted Sales')
     plt.legend()
-    plt.savefig("actual_vs_predicted.png")
+    plt.savefig(os.path.join(graphs_folder, "actual_vs_predicted.png"))
     plt.close()
+
+    print("Graphs saved to: ", graphs_folder)
 
     # Residual Plot (Errors)
     errors = y_test - y_pred.reshape(-1)
@@ -123,7 +153,7 @@ def main():
     plt.xlabel("Prediction Error")
     plt.ylabel("Frequency")
     plt.title("Residual Distribution")
-    plt.savefig("residual_distribution.png")
+    plt.savefig(os.path.join(graphs_folder, "residual_distribution.png"))
     plt.close()
 
     input("Press Enter to exit...")

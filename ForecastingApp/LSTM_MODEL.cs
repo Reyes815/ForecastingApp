@@ -18,12 +18,14 @@ namespace ForecastingApp
         private MainForm mainForm;
         private string cvs_filepath;
         private List<string> features;
+        //private Stopwatch stopwatch;
         public LSTM_MODEL(MainForm form, string selectedcsv, List<string> processed_features)
         {
             InitializeComponent();
             mainForm = form;
             cvs_filepath = selectedcsv;
             features = processed_features;
+            //stopwatch = new Stopwatch();
             
         }
 
@@ -55,17 +57,33 @@ namespace ForecastingApp
                 {
                     FileName = pythonExecutable,
                     Arguments = arguments,
-                    UseShellExecute = true,
+                    UseShellExecute = false,
                     CreateNoWindow = false
                 };
 
-                Process process = new Process { StartInfo = psi };
+                Process process = new Process { StartInfo = psi, EnableRaisingEvents = true };
+
+                process.Exited += new EventHandler(Process_Exited);
+
+                //stopwatch.Start();
                 process.Start();
             }
             catch (Exception ex)
             {
                 MessageBox.Show("Python Error: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+        }
+
+        private void Process_Exited(object sender, EventArgs e)
+        {
+            //stopwatch.Stop();
+            //TimeSpan trainingDuration = stopwatch.Elapsed;
+
+            this.BeginInvoke((MethodInvoker)delegate
+            {
+                Results resultsForm = new Results();
+                resultsForm.Show();
+            });
         }
 
         private void button1_Click(object sender, EventArgs e)

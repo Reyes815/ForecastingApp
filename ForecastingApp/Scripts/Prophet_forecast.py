@@ -6,8 +6,10 @@ from sklearn.metrics import mean_absolute_error, mean_squared_error
 from sklearn.preprocessing import StandardScaler
 
 def main():
-    if len(sys.argv) != 12:  # Fix: Expecting 12 arguments including script name
+    if len(sys.argv) != 13:  # Fix: Expecting 12 arguments including script name
         print("Usage: Prophet_forecast.py <csv_file> <period> <train> <test> <split> <weekly> <monthly> <holiday> <standardization> <growth> <seasonality_mode>")
+        print(sys.argv)
+        input("sdfsdfsdf")
         sys.exit(1)
 
     try:
@@ -25,6 +27,7 @@ def main():
         seasonality_mode = sys.argv[11]  # "additive" or "multiplicative"
 
         print(f"Running Prophet with period={period}, train={train_ratio}, test={test_ratio}, split={split_ratio}, weekly={weekly}, monthly={monthly}, holiday={holiday}, standardization={standardization}, growth={growth}, seasonality_mode={seasonality_mode}")
+        # input("sdfsdjkflskdjf")
 
         # Load dataset
         df = pd.read_csv(csv_file, parse_dates=['Date'], encoding='latin1')
