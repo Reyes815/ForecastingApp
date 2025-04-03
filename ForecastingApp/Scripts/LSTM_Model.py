@@ -105,7 +105,7 @@ def main():
     metrics = {
         "Loss (MSE)": round(loss, 4),
         "Mean Absolute Error (MAE)": round(mae, 4),
-        "R² Score": round(r2, 4),
+        "R2 Score": round(r2, 4),
         "Training Duration (seconds)": round(training_duration, 2)
     }
 
@@ -121,6 +121,7 @@ def main():
     # Create Graphs folder if it doesn't exist
     graphs_folder = os.path.join(os.path.dirname(__file__), 'Graphs')
     os.makedirs(graphs_folder, exist_ok=True)
+
 
     # Training vs. Validation Loss
     plt.figure(figsize=(10, 5))

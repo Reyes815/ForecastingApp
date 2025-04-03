@@ -15,8 +15,6 @@ namespace ForecastingApp
 {
     public partial class Results : Form
     {
-        //private TimeSpan trainingDuration;
-        //private Dictionary<string, string> metrics;
         private string predictionImgPath;
         private string lossImagePath;
 
@@ -24,13 +22,29 @@ namespace ForecastingApp
         {
             InitializeComponent();
             LoadMetrics();
+            this.Resize += Results_Resize;
         }
 
         private void LoadMetrics()
         {
-            string metricsFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Scripts", "Metrics", "lstm_metrics.json");
-            string predictionGraphPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Scripts", "Graphs", "actual_vs_predicted.png");
-            string lossGraphPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Scripts", "Graphs", "training_vs_validation_loss.png");
+            flowLayoutPanel1.AutoScroll = true;
+            flowLayoutPanel1.WrapContents = false;
+            flowLayoutPanel1.FlowDirection = FlowDirection.TopDown;
+
+            // Get the current working directory (output folder like bin\x64\Debug)
+            string workingDirectory = Directory.GetCurrentDirectory();
+
+            // Calculate the path for the "Scripts\Metrics" folder based on the project root
+            string projectRoot = Path.GetFullPath(Path.Combine(workingDirectory, @"..\..\..\"));
+            string metricsFolder = Path.Combine(projectRoot, "Scripts", "Metrics");
+            string graphsFolder = Path.Combine(projectRoot, "Scripts", "Graphs");
+
+            // Define the file path for the saved metrics JSON
+            string metricsFilePath = Path.Combine(metricsFolder, "lstm_metrics.json");
+
+            // Graphs file path
+            string predictionGraphPath = Path.Combine(graphsFolder, "actual_vs_predicted.png");
+            string lossGraphPath = Path.Combine(graphsFolder, "training_vs_validation_loss.png");
 
             if (File.Exists(metricsFilePath))
             {
@@ -39,50 +53,30 @@ namespace ForecastingApp
                 JObject jsonObject = JObject.Parse(jsonContent);
 
                 // Access values using keys
-                double loss = jsonObject["Loss"].Value<double>();
-                double mae = jsonObject["MAE"].Value<double>();
-                double r2 = jsonObject["R2"].Value<double>();
-                double trainingDuration = jsonObject["TrainingDuration"].Value<double>();
+                double loss = jsonObject["Loss (MSE)"].Value<double>();
+                double mae = jsonObject["Mean Absolute Error (MAE)"].Value<double>();
+                double r2 = jsonObject["R2 Score"].Value<double>();
+                double trainingDuration = jsonObject["Training Duration (seconds)"].Value<double>();
 
 
-                string[] metric_names = { "Loss", "MAE", "R2", "Training Duration" };
+                string[] metric_names = { "Loss (MSE)", "Mean Absolute Error (MAE)", "R2 Score", "Training Duration (seconds)" };
                 double[] metrics = { loss, mae, r2, trainingDuration };
 
-                //foreach (var entry in metrics)
-                //{
-                //    Label metricLabel = new Label
-                //    {
-                //        Text = $"{entry.Key}: {entry.Value}",
-                //        Font = new Font("Arial", 11),
-                //        AutoSize = true
-                //    };
-                //    flowLayoutPanel1.Controls.Add(metricLabel);
-                //}
+                for (int i = 0; i < metrics.Length; i++)
+                {
+                    Label metricLabel = new Label
+                    {
+                        Text = $"{metric_names[i]}: {metrics[i]}",
+                        Font = new Font("Arial", 11, FontStyle.Regular),
+                        AutoSize = true
+                    };
 
-                //for (int i = 0; i < metrics.Length; i++)
-                //{
-                //    Label metricLabel = new Label
-                //    {
-                //        Text = $"{metrics[0]}: {metric_names[0]}",
-                //        //Text = "jlkdsflksjkldfjsldfkjklsf",
-                //        Font = new Font("Arial", 11, FontStyle.Regular),
-                //        AutoSize = true
-                //    };
-                //    flowLayoutPanel1.Controls.Add(metricLabel);
-                //}
+                    flowLayoutPanel1.Controls.Add(metricLabel);
+                }
 
-                //LoadImageWithLabel("Actual vs. Predicted Sales", predictionGraphPath);
-                //LoadImageWithLabel("Training Loss over Epochs", lossGraphPath);
+                LoadImageWithLabel("Actual vs. Predicted Sales", predictionGraphPath);
+                LoadImageWithLabel("Training Loss over Epochs", lossGraphPath);
             }
-
-            Label metricLabel = new Label
-            {
-                //Text = $"{metrics[0]}: {metric_names[0]}",
-                Text = metricsFilePath,
-                Font = new Font("Arial", 11, FontStyle.Regular),
-                AutoSize = true
-            };
-            flowLayoutPanel1.Controls.Add(metricLabel);
         }
 
         public void LoadImageWithLabel(string title, string imgpath)
@@ -100,12 +94,25 @@ namespace ForecastingApp
                 PictureBox pictureBox = new PictureBox
                 {
                     Image = Image.FromFile(imgpath),
-                    SizeMode = PictureBoxSizeMode.StretchImage,
-                    Width = 400,
-                    Height = 300
+                    SizeMode = PictureBoxSizeMode.Zoom,
+                    Width = flowLayoutPanel1.ClientSize.Width - 20,
+                    Height = (flowLayoutPanel1.ClientSize.Height - 20) * 3 / 4
                 };
                 flowLayoutPanel1.Controls.Add(pictureBox);
             }
         }
+
+        private void Results_Resize(object sender, EventArgs e)
+        {
+            foreach (Control control in flowLayoutPanel1.Controls)
+            {
+                if (control is PictureBox pictureBox)
+                {
+                    pictureBox.Width = flowLayoutPanel1.ClientSize.Width - 20;
+                    pictureBox.Height = (pictureBox.Width * 3) / 4; // Maintain aspect ratio
+                }
+            }
+        }
+
     }
 }

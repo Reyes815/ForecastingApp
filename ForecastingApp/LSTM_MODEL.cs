@@ -94,7 +94,7 @@ namespace ForecastingApp
         private void LSTM_Form_Load(object sender, EventArgs e)
         {
             // Set default values for textboxes
-            epoch_textbox.Text = "50";
+            epoch_textbox.Text = "1";
             neuronslvl1_textbox.Text = "64";
             neuronslvl2_textbox.Text = "32";
             batchsize_textbox.Text = "16";
