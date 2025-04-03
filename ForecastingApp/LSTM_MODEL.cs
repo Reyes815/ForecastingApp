@@ -81,7 +81,8 @@ namespace ForecastingApp
 
             this.BeginInvoke((MethodInvoker)delegate
             {
-                Results resultsForm = new Results();
+                this.Hide();
+                Results resultsForm = new Results(this);
                 resultsForm.Show();
             });
         }

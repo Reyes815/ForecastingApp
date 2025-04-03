@@ -47,6 +47,7 @@
             this.Controls.Add(this.flowLayoutPanel1);
             this.Name = "Results";
             this.Text = "Results";
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.RESULTS_CLOSE);
             this.ResumeLayout(false);
 
         }

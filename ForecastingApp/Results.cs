@@ -17,12 +17,14 @@ namespace ForecastingApp
     {
         private string predictionImgPath;
         private string lossImagePath;
+        private LSTM_MODEL form;
 
-        public Results()
+        public Results(LSTM_MODEL form)
         {
             InitializeComponent();
             LoadMetrics();
             this.Resize += Results_Resize;
+            this.form = form;
         }
 
         private void LoadMetrics()
@@ -114,5 +116,9 @@ namespace ForecastingApp
             }
         }
 
+        private void RESULTS_CLOSE(object sender, FormClosedEventArgs e)
+        {
+            form.Show(); // Closes the entire application when Form2 is closed
+        }
     }
 }
