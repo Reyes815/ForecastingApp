@@ -151,22 +151,21 @@ namespace ForecastingApp
                 // Get user inputs from the form
                 string period = period_txtbox.Text;
                 string train = train_txtbox.Text;
-                string test = test_txtbox.Text;
-                string split = split_txtbox.Text;
                 bool weekly = weekly_rbtn.Checked;
                 bool monthly = monthly_rbtn.Checked;
                 bool holiday = !Disable_rbtn.Checked;
                 bool standardization = !Disable_rbtn2.Checked;
-                string target = target_dropdown.Text;
-
-                // Ensure 'growth' and 'seasonality_mode' have valid values
                 string growth = linear_rbtn.Checked ? "linear" : logistic_rbtn.Checked ? "logistic" : "linear";  // Default to "linear"
                 string seasonality_mode = additive_rbtn.Checked ? "additive" : multiplicative_rbtn.Checked ? "multiplicative" : "additive"; // Default to "additive"
+                string changepoint_pscale = cp_pscale_txtbox.Text;
+                string seasonality_pscale = s_pscale_txtbox.Text;
+                string target = target_dropdown.Text;
 
-                // Build the argument string correctly
-                string arguments = $"\"{scriptPath}\" \"{cvs_filepath}\" {period} {train} {test} {split} " +
+                // Build the argument string in correct order
+                string arguments = $"\"{scriptPath}\" \"{cvs_filepath}\" {period} {train} " +
                                    $"{weekly.ToString().ToLower()} {monthly.ToString().ToLower()} {holiday.ToString().ToLower()} " +
-                                   $"{standardization.ToString().ToLower()} \"{target}\" \"{growth}\" \"{seasonality_mode}\"";
+                                   $"{standardization.ToString().ToLower()} \"{growth}\" \"{seasonality_mode}\" " +
+                                   $"{changepoint_pscale} {seasonality_pscale} \"{target}\"";
 
                 // Debugging: Show the arguments
                 Console.WriteLine($"Running script with arguments: {arguments}");
@@ -218,15 +217,15 @@ namespace ForecastingApp
             // Set default text values
             period_txtbox.Text = "30";  // Default forecast period (days)
             train_txtbox.Text = "0.8";  // 80% training data
-            test_txtbox.Text = "0.2";   // 20% test data
-            split_txtbox.Text = "0.7";  // 70% data split ratio
+            cp_pscale_txtbox.Text = "0.05"; // Default changepoint scale
+            s_pscale_txtbox.Text = "0.05"; // Default seasonality scale
 
             // Set default radio button selections
             Enable_rbtn.Checked = true;   // Enable holidays
             Disable_rbtn.Checked = false;
 
-            Enable_rbtn2.Checked = true;  // Enable standardization
-            Disable_rbtn2.Checked = false;
+            Enable_rbtn2.Checked = false;  // Enable standardization
+            Disable_rbtn2.Checked = true;
 
             // Default seasonality settings
             weekly_rbtn.Checked = true;   // Default to weekly seasonality

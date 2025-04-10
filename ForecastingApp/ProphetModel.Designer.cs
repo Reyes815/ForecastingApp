@@ -40,15 +40,12 @@
             this.monthly_rbtn = new System.Windows.Forms.RadioButton();
             this.Disable_rbtn = new System.Windows.Forms.RadioButton();
             this.label4 = new System.Windows.Forms.Label();
-            this.test_txtbox = new System.Windows.Forms.TextBox();
-            this.split_txtbox = new System.Windows.Forms.TextBox();
             this.multiplicative_rbtn = new System.Windows.Forms.RadioButton();
             this.additive_rbtn = new System.Windows.Forms.RadioButton();
             this.label3 = new System.Windows.Forms.Label();
             this.logistic_rbtn = new System.Windows.Forms.RadioButton();
             this.linear_rbtn = new System.Windows.Forms.RadioButton();
             this.label7 = new System.Windows.Forms.Label();
-            this.seasonality_grpbox = new System.Windows.Forms.GroupBox();
             this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
             this.SeasonMode_grpbox = new System.Windows.Forms.GroupBox();
             this.Growth_grpbox = new System.Windows.Forms.GroupBox();
@@ -59,7 +56,14 @@
             this.Standard_grpbox = new System.Windows.Forms.GroupBox();
             this.Enable_rbtn2 = new System.Windows.Forms.RadioButton();
             this.Disable_rbtn2 = new System.Windows.Forms.RadioButton();
-            this.seasonality_grpbox.SuspendLayout();
+            this.label9 = new System.Windows.Forms.Label();
+            this.cp_pscale_txtbox = new System.Windows.Forms.TextBox();
+            this.label10 = new System.Windows.Forms.Label();
+            this.s_pscale_txtbox = new System.Windows.Forms.TextBox();
+            this.label11 = new System.Windows.Forms.Label();
+            this.label12 = new System.Windows.Forms.Label();
+            this.label13 = new System.Windows.Forms.Label();
+            this.label14 = new System.Windows.Forms.Label();
             this.SeasonMode_grpbox.SuspendLayout();
             this.Growth_grpbox.SuspendLayout();
             this.Holiday_grpbox.SuspendLayout();
@@ -68,21 +72,21 @@
             // 
             // train_txtbox
             // 
-            this.train_txtbox.Location = new System.Drawing.Point(257, 204);
+            this.train_txtbox.Location = new System.Drawing.Point(270, 205);
             this.train_txtbox.Name = "train_txtbox";
-            this.train_txtbox.Size = new System.Drawing.Size(40, 20);
+            this.train_txtbox.Size = new System.Drawing.Size(52, 20);
             this.train_txtbox.TabIndex = 48;
             // 
             // period_txtbox
             // 
             this.period_txtbox.Location = new System.Drawing.Point(66, 115);
             this.period_txtbox.Name = "period_txtbox";
-            this.period_txtbox.Size = new System.Drawing.Size(100, 20);
+            this.period_txtbox.Size = new System.Drawing.Size(49, 20);
             this.period_txtbox.TabIndex = 40;
             // 
             // train_btn
             // 
-            this.train_btn.Location = new System.Drawing.Point(355, 326);
+            this.train_btn.Location = new System.Drawing.Point(357, 382);
             this.train_btn.Name = "train_btn";
             this.train_btn.Size = new System.Drawing.Size(107, 33);
             this.train_btn.TabIndex = 39;
@@ -106,9 +110,9 @@
             this.label5.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label5.Location = new System.Drawing.Point(253, 172);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(132, 20);
+            this.label5.Size = new System.Drawing.Size(130, 20);
             this.label5.TabIndex = 34;
-            this.label5.Text = "Train - Test - Split";
+            this.label5.Text = "Train - Test Ratio";
             // 
             // label2
             // 
@@ -143,7 +147,7 @@
             // weekly_rbtn
             // 
             this.weekly_rbtn.AutoSize = true;
-            this.weekly_rbtn.Location = new System.Drawing.Point(0, 34);
+            this.weekly_rbtn.Location = new System.Drawing.Point(66, 207);
             this.weekly_rbtn.Name = "weekly_rbtn";
             this.weekly_rbtn.Size = new System.Drawing.Size(118, 17);
             this.weekly_rbtn.TabIndex = 49;
@@ -154,7 +158,7 @@
             // monthly_rbtn
             // 
             this.monthly_rbtn.AutoSize = true;
-            this.monthly_rbtn.Location = new System.Drawing.Point(1, 11);
+            this.monthly_rbtn.Location = new System.Drawing.Point(66, 235);
             this.monthly_rbtn.Name = "monthly_rbtn";
             this.monthly_rbtn.Size = new System.Drawing.Size(119, 17);
             this.monthly_rbtn.TabIndex = 50;
@@ -182,20 +186,6 @@
             this.label4.Size = new System.Drawing.Size(69, 20);
             this.label4.TabIndex = 51;
             this.label4.Text = "Holidays";
-            // 
-            // test_txtbox
-            // 
-            this.test_txtbox.Location = new System.Drawing.Point(303, 204);
-            this.test_txtbox.Name = "test_txtbox";
-            this.test_txtbox.Size = new System.Drawing.Size(40, 20);
-            this.test_txtbox.TabIndex = 53;
-            // 
-            // split_txtbox
-            // 
-            this.split_txtbox.Location = new System.Drawing.Point(349, 204);
-            this.split_txtbox.Name = "split_txtbox";
-            this.split_txtbox.Size = new System.Drawing.Size(40, 20);
-            this.split_txtbox.TabIndex = 54;
             // 
             // multiplicative_rbtn
             // 
@@ -260,16 +250,6 @@
             this.label7.Size = new System.Drawing.Size(99, 20);
             this.label7.TabIndex = 59;
             this.label7.Text = "Growth Type";
-            // 
-            // seasonality_grpbox
-            // 
-            this.seasonality_grpbox.Controls.Add(this.weekly_rbtn);
-            this.seasonality_grpbox.Controls.Add(this.monthly_rbtn);
-            this.seasonality_grpbox.Location = new System.Drawing.Point(65, 203);
-            this.seasonality_grpbox.Name = "seasonality_grpbox";
-            this.seasonality_grpbox.Size = new System.Drawing.Size(128, 59);
-            this.seasonality_grpbox.TabIndex = 62;
-            this.seasonality_grpbox.TabStop = false;
             // 
             // SeasonMode_grpbox
             // 
@@ -364,22 +344,103 @@
             this.Disable_rbtn2.Text = "Disable";
             this.Disable_rbtn2.UseVisualStyleBackColor = true;
             // 
+            // label9
+            // 
+            this.label9.AutoSize = true;
+            this.label9.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label9.Location = new System.Drawing.Point(328, 208);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(103, 13);
+            this.label9.TabIndex = 69;
+            this.label9.Text = "Training Percentage";
+            // 
+            // cp_pscale_txtbox
+            // 
+            this.cp_pscale_txtbox.Location = new System.Drawing.Point(66, 335);
+            this.cp_pscale_txtbox.Name = "cp_pscale_txtbox";
+            this.cp_pscale_txtbox.Size = new System.Drawing.Size(49, 20);
+            this.cp_pscale_txtbox.TabIndex = 71;
+            // 
+            // label10
+            // 
+            this.label10.AutoSize = true;
+            this.label10.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label10.Location = new System.Drawing.Point(49, 293);
+            this.label10.Name = "label10";
+            this.label10.Size = new System.Drawing.Size(180, 20);
+            this.label10.TabIndex = 70;
+            this.label10.Text = "Changepoint Prior Scale";
+            // 
+            // s_pscale_txtbox
+            // 
+            this.s_pscale_txtbox.Location = new System.Drawing.Point(270, 335);
+            this.s_pscale_txtbox.Name = "s_pscale_txtbox";
+            this.s_pscale_txtbox.Size = new System.Drawing.Size(52, 20);
+            this.s_pscale_txtbox.TabIndex = 73;
+            // 
+            // label11
+            // 
+            this.label11.AutoSize = true;
+            this.label11.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label11.Location = new System.Drawing.Point(253, 293);
+            this.label11.Name = "label11";
+            this.label11.Size = new System.Drawing.Size(171, 20);
+            this.label11.TabIndex = 72;
+            this.label11.Text = "Seasonality Prior Scale";
+            // 
+            // label12
+            // 
+            this.label12.AutoSize = true;
+            this.label12.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label12.Location = new System.Drawing.Point(121, 117);
+            this.label12.Name = "label12";
+            this.label12.Size = new System.Drawing.Size(31, 13);
+            this.label12.TabIndex = 74;
+            this.label12.Text = "Days";
+            // 
+            // label13
+            // 
+            this.label13.AutoSize = true;
+            this.label13.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label13.Location = new System.Drawing.Point(126, 338);
+            this.label13.Name = "label13";
+            this.label13.Size = new System.Drawing.Size(101, 13);
+            this.label13.TabIndex = 75;
+            this.label13.Text = "Min: 0.001 Max: 0.5";
+            // 
+            // label14
+            // 
+            this.label14.AutoSize = true;
+            this.label14.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label14.Location = new System.Drawing.Point(328, 338);
+            this.label14.Name = "label14";
+            this.label14.Size = new System.Drawing.Size(110, 13);
+            this.label14.TabIndex = 76;
+            this.label14.Text = "Min: 0.0001 Max: 50+";
+            // 
             // ProphetModel
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(815, 373);
+            this.ClientSize = new System.Drawing.Size(815, 438);
+            this.Controls.Add(this.label14);
+            this.Controls.Add(this.label13);
+            this.Controls.Add(this.label12);
+            this.Controls.Add(this.s_pscale_txtbox);
+            this.Controls.Add(this.label11);
+            this.Controls.Add(this.cp_pscale_txtbox);
+            this.Controls.Add(this.label10);
+            this.Controls.Add(this.label9);
+            this.Controls.Add(this.weekly_rbtn);
             this.Controls.Add(this.Standard_grpbox);
+            this.Controls.Add(this.monthly_rbtn);
             this.Controls.Add(this.Holiday_grpbox);
             this.Controls.Add(this.label8);
             this.Controls.Add(this.target_dropdown);
             this.Controls.Add(this.Growth_grpbox);
             this.Controls.Add(this.SeasonMode_grpbox);
-            this.Controls.Add(this.seasonality_grpbox);
             this.Controls.Add(this.label7);
             this.Controls.Add(this.label3);
-            this.Controls.Add(this.split_txtbox);
-            this.Controls.Add(this.test_txtbox);
             this.Controls.Add(this.label4);
             this.Controls.Add(this.train_txtbox);
             this.Controls.Add(this.period_txtbox);
@@ -392,8 +453,6 @@
             this.Name = "ProphetModel";
             this.Text = "Prophet";
             this.Load += new System.EventHandler(this.ProphetModel_load);
-            this.seasonality_grpbox.ResumeLayout(false);
-            this.seasonality_grpbox.PerformLayout();
             this.SeasonMode_grpbox.ResumeLayout(false);
             this.SeasonMode_grpbox.PerformLayout();
             this.Growth_grpbox.ResumeLayout(false);
@@ -421,15 +480,12 @@
         private System.Windows.Forms.RadioButton monthly_rbtn;
         private System.Windows.Forms.RadioButton Disable_rbtn;
         private System.Windows.Forms.Label label4;
-        private System.Windows.Forms.TextBox test_txtbox;
-        private System.Windows.Forms.TextBox split_txtbox;
         private System.Windows.Forms.RadioButton multiplicative_rbtn;
         private System.Windows.Forms.RadioButton additive_rbtn;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.RadioButton logistic_rbtn;
         private System.Windows.Forms.RadioButton linear_rbtn;
         private System.Windows.Forms.Label label7;
-        private System.Windows.Forms.GroupBox seasonality_grpbox;
         private System.ComponentModel.BackgroundWorker backgroundWorker1;
         private System.Windows.Forms.GroupBox SeasonMode_grpbox;
         private System.Windows.Forms.GroupBox Growth_grpbox;
@@ -440,5 +496,13 @@
         private System.Windows.Forms.GroupBox Standard_grpbox;
         private System.Windows.Forms.RadioButton Enable_rbtn2;
         private System.Windows.Forms.RadioButton Disable_rbtn2;
+        private System.Windows.Forms.Label label9;
+        private System.Windows.Forms.TextBox cp_pscale_txtbox;
+        private System.Windows.Forms.Label label10;
+        private System.Windows.Forms.TextBox s_pscale_txtbox;
+        private System.Windows.Forms.Label label11;
+        private System.Windows.Forms.Label label12;
+        private System.Windows.Forms.Label label13;
+        private System.Windows.Forms.Label label14;
     }
 }
