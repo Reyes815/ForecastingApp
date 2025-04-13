@@ -224,10 +224,10 @@
             this.logistic_rbtn.AutoSize = true;
             this.logistic_rbtn.Location = new System.Drawing.Point(0, 36);
             this.logistic_rbtn.Name = "logistic_rbtn";
-            this.logistic_rbtn.Size = new System.Drawing.Size(61, 17);
+            this.logistic_rbtn.Size = new System.Drawing.Size(42, 17);
             this.logistic_rbtn.TabIndex = 61;
             this.logistic_rbtn.TabStop = true;
-            this.logistic_rbtn.Text = "Logistic";
+            this.logistic_rbtn.Text = "Flat";
             this.logistic_rbtn.UseVisualStyleBackColor = true;
             // 
             // linear_rbtn

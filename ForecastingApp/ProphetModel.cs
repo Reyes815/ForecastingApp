@@ -155,7 +155,7 @@ namespace ForecastingApp
                 bool monthly = monthly_rbtn.Checked;
                 bool holiday = !Disable_rbtn.Checked;
                 bool standardization = !Disable_rbtn2.Checked;
-                string growth = linear_rbtn.Checked ? "linear" : logistic_rbtn.Checked ? "logistic" : "linear";  // Default to "linear"
+                string growth = linear_rbtn.Checked ? "flat" : logistic_rbtn.Checked ? "flat" : "linear";  // Default to "linear"
                 string seasonality_mode = additive_rbtn.Checked ? "additive" : multiplicative_rbtn.Checked ? "multiplicative" : "additive"; // Default to "additive"
                 string changepoint_pscale = cp_pscale_txtbox.Text;
                 string seasonality_pscale = s_pscale_txtbox.Text;
@@ -218,7 +218,7 @@ namespace ForecastingApp
             period_txtbox.Text = "30";  // Default forecast period (days)
             train_txtbox.Text = "0.8";  // 80% training data
             cp_pscale_txtbox.Text = "0.05"; // Default changepoint scale
-            s_pscale_txtbox.Text = "0.05"; // Default seasonality scale
+            s_pscale_txtbox.Text = "10"; // Default seasonality scale
 
             // Set default radio button selections
             Enable_rbtn.Checked = true;   // Enable holidays

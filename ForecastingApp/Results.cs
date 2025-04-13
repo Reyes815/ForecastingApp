@@ -120,5 +120,10 @@ namespace ForecastingApp
         {
             form.Show(); // Closes the entire application when Form2 is closed
         }
+
+        private void flowLayoutPanel1_Paint(object sender, PaintEventArgs e)
+        {
+
+        }
     }
 }
