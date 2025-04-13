@@ -179,45 +179,48 @@ def main():
             print(f"Accuracy = {round(100 - (mape * 100), 2)}%")
 
         # ============================
-        # Plot Forecast vs Actual
+        # Enhanced Visualization (Side-by-Side Plot + Metrics)
         # ============================
 
-        def plot_forecast(train, test, forecast):
-            plt.figure(figsize=(14, 7))
-            plt.plot(train['ds'], train['y'], label='Train', color='blue')
-            plt.plot(test['ds'], test['y'], label='Test', color='orange')
-            plt.plot(forecast['ds'], forecast['yhat'], label='Forecast', color='green')
-            plt.fill_between(forecast['ds'], forecast['yhat_lower'], forecast['yhat_upper'], color='gray', alpha=0.3, label='Uncertainty Interval')
-            plt.xlabel('Date')
-            plt.ylabel(target_name)
-            plt.title(f'Forecast vs Actual ({dataset_name} - {target_name})')
-            plt.legend()
+        def plot_forecast_with_metrics(train, test, forecast, mape, rmse, mae):
+            accuracy = 100 - (mape * 100)
+
+            fig, axs = plt.subplots(1, 2, figsize=(18, 6), gridspec_kw={'width_ratios': [4, 1]})
+            fig.suptitle(f'Forecast vs Actual - {dataset_name} ({target_name})', fontsize=16)
+
+            # Forecast Line Plot
+            axs[0].plot(train['ds'], train['y'], label='Train', color='blue', linewidth=1.5)
+            axs[0].plot(test['ds'], test['y'], label='Test', color='orange', linewidth=1.5)
+            axs[0].plot(forecast['ds'], forecast['yhat'], label='Forecast', color='green', linewidth=2)
+
+            axs[0].fill_between(forecast['ds'], forecast['yhat_lower'], forecast['yhat_upper'],
+                                color='gray', alpha=0.3, label='Uncertainty Interval')
+
+            axs[0].set_xlabel('Date')
+            axs[0].set_ylabel(target_name)
+            axs[0].legend(loc='upper left')
+            axs[0].grid(True)
+
+            # Metrics Box (Text on Right)
+            metrics_text = (
+                f"MAPE: {round(mape * 100, 2)}%\n"
+                f"RMSE: {round(rmse, 2)}\n"
+                f"MAE: {round(mae, 2)}\n"
+                f"Accuracy: {round(accuracy, 2)}%"
+            )
+
+            axs[1].axis('off')
+            axs[1].text(0, 0.5, metrics_text, fontsize=14, va='center', ha='left', fontweight='bold')
+
+            plt.tight_layout()
+            plt.subplots_adjust(top=0.85)
             plt.show()
 
-        plot_forecast(train_data, test_data, forecast)
 
-        # ============================
-        # Display Forecast Results
-        # ============================
-
-        print(f"\nForecast Results ({dataset_name}):")
-        print(forecast[['ds', 'yhat', 'yhat_lower', 'yhat_upper']].head())
-
-        # Optional Prophet Component Plots
-        # model.plot_components(forecast)
-
-        # Final Prophet Forecast Plot
-        model.plot(forecast)
-        plt.title(f"{dataset_name} {target_name} Forecast using Prophet")
-        plt.xlabel("Date")
-        plt.ylabel(target_name)
-        plt.show()
+        # Call enhanced plot function
+        plot_forecast_with_metrics(train_data, test_data, forecast_test, mape, rmse, mae)
 
     except Exception as e:
         print(f"\nError: {e}")
 
     input("\nPress Enter to exit...")
-
-
-if __name__ == "__main__":
-    main()

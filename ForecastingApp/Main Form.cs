@@ -32,18 +32,6 @@ namespace ForecastingApp
             InitializeComponent();
 
             InitializeDataGridView();
-
-            //Environment.SetEnvironmentVariable("PYTHONNET_PYDLL", @"C:\Users\Rowen\AppData\Local\Programs\Python\Python310\python310.dll");
-
-            //try
-            //{
-            //    PythonEngine.Initialize();
-            //    MessageBox.Show("Python.NET Initialized Successfully!");
-            //}
-            //catch (Exception ex)
-            //{
-            //    MessageBox.Show("Python.NET Initialization Failed: " + ex.Message);
-            //}
         }
 
         private void InitializeDataGridView()
@@ -73,13 +61,12 @@ namespace ForecastingApp
             }
         }
 
-        private async Task<string> GetModelRecommendationFromGemini(List<string> features)
+        private async Task<(string datasetAnalysis, string modelRecommendation)> GetAnalysisFromGemini(List<string> features)
         {
             string url = $"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={API_Key}";
 
             string featureList = string.Join(", ", features);
-            string prompt = $"Based on these dataset features: {featureList}, recommend the best machine learning model to use for sales forecasting between LSTM, Prophet, and XGBoost. Just say which one, keep your answer as only MODEL";
-
+            string prompt = $"Keep your answers concise. When giving the model recommendation just name the model and nothing else. Analyze this dataset with features: {featureList}. First paragraph (5 sentences): Provide key insights about the dataset structure, relationships between features, and potential challenges for forecasting. Add a space. Second paragraph (5 sentences): Recommend the best model between LSTM, Prophet, and XGBoost for sales forecasting with these features, explaining why it fits this data best. Format your response with 'DATASET_ANALYSIS:' before the first paragraph and 'MODEL_RECOMMENDATION:' before the second paragraph.";
             var requestBody = new
             {
                 contents = new[]
@@ -106,11 +93,57 @@ namespace ForecastingApp
 
                 try
                 {
-                    return jsonResponse.candidates[0].content.parts[0].text.ToString();
+                    string fullResponse = jsonResponse.candidates[0].content.parts[0].text.ToString();
+
+
+
+                    // Split the response into dataset analysis and model recommendation
+
+                    int modelIndex = fullResponse.IndexOf("MODEL_RECOMMENDATION:");
+
+
+
+                    string datasetAnalysis = string.Empty;
+
+                    string modelRecommendation = string.Empty;
+
+
+
+                    if (modelIndex > 0)
+
+                    {
+
+                        datasetAnalysis = fullResponse
+
+                            .Substring(fullResponse.IndexOf("DATASET_ANALYSIS:") + "DATASET_ANALYSIS:".Length,
+
+                                      modelIndex - "DATASET_ANALYSIS:".Length)
+
+                            .Trim();
+
+
+
+                        modelRecommendation = fullResponse
+
+                            .Substring(modelIndex + "MODEL_RECOMMENDATION:".Length)
+
+                            .Trim();
+
+                    }
+
+                    else
+                    {
+                        datasetAnalysis = "Could not parse dataset analysis.";
+
+                        modelRecommendation = fullResponse;
+
+                    }
+
+                    return (datasetAnalysis, modelRecommendation);
                 }
                 catch
                 {
-                    return "Error getting recommendation from Gemini API.";
+                    return ("Error analyzing dataset.", "Error getting model recommendation.");
                 }
             }
         }
@@ -170,8 +203,17 @@ namespace ForecastingApp
                         dataGridView1.Rows.Add(column["name"], column["type"], column["unique_values"], column["null_values"], column["category"]);
                     }
 
-                    var recommendation = await GetModelRecommendationFromGemini(features);
-                    label7.Text = recommendation;
+                    // Get analysis and recommendation
+
+                    var (datasetAnalysis, modelRecommendation) = await GetAnalysisFromGemini(features);
+
+
+
+                    // Update labels with the analysis and recommendation
+
+                    label_Dataset.Text = datasetAnalysis;
+
+                    label_Model.Text = modelRecommendation;
 
                 }
             }
@@ -180,9 +222,6 @@ namespace ForecastingApp
                 MessageBox.Show("Error running Python script: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
-
-
-
 
         private async void UploadMenuBtn(object sender, EventArgs e)
         {
