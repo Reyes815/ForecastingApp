@@ -12,6 +12,7 @@ using System.Windows.Forms;
 using Python.Runtime;
 using Newtonsoft.Json;
 using System.Reflection.Emit;
+using System.Net.Http;
 
 namespace ForecastingApp
 {
@@ -23,6 +24,8 @@ namespace ForecastingApp
         private string rawCSVFile = "";
         private string selectedCSVFile = "";
         private List<string> features = new List<string>();
+        private static readonly HttpClient client = new HttpClient();
+        private readonly string API_Key = "AIzaSyBpw0WyxmUU2F7PsMQMf1Xh9C89GtGpRl0";
 
         public MainForm()
         {
@@ -70,7 +73,49 @@ namespace ForecastingApp
             }
         }
 
-        private void ProcessCSVFile(string filePath)
+        private async Task<string> GetModelRecommendationFromGemini(List<string> features)
+        {
+            string url = $"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={API_Key}";
+
+            string featureList = string.Join(", ", features);
+            string prompt = $"Based on these dataset features: {featureList}, recommend the best machine learning model to use for sales forecasting between LSTM, Prophet, and XGBoost. Just say which one, keep your answer as only MODEL";
+
+            var requestBody = new
+            {
+                contents = new[]
+                {
+                    new {
+                        parts = new[]
+                        {
+                            new { text = prompt }
+                        }
+                    }
+                }
+            };
+
+            using (HttpClient client = new HttpClient())
+            {
+                var json = JsonConvert.SerializeObject(requestBody);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                var response = await client.PostAsync(url, content);
+                var responseString = await response.Content.ReadAsStringAsync();
+
+                dynamic jsonResponse = JsonConvert.DeserializeObject(responseString);
+                //return responseString;
+
+                try
+                {
+                    return jsonResponse.candidates[0].content.parts[0].text.ToString();
+                }
+                catch
+                {
+                    return "Error getting recommendation from Gemini API.";
+                }
+            }
+        }
+
+        private async Task ProcessCSVFile(string filePath)
         {
             try
             {
@@ -124,6 +169,10 @@ namespace ForecastingApp
                         features.Add(featureName);
                         dataGridView1.Rows.Add(column["name"], column["type"], column["unique_values"], column["null_values"], column["category"]);
                     }
+
+                    var recommendation = await GetModelRecommendationFromGemini(features);
+                    label7.Text = recommendation;
+
                 }
             }
             catch (Exception ex)
@@ -133,7 +182,9 @@ namespace ForecastingApp
         }
 
 
-        private void UploadMenuBtn(object sender, EventArgs e)
+
+
+        private async void UploadMenuBtn(object sender, EventArgs e)
         {
             // Create an instance of OpenFileDialog
             using (OpenFileDialog openFileDialog = new OpenFileDialog())
@@ -149,7 +200,7 @@ namespace ForecastingApp
                     // You can now process the CSV file (e.g., read it into your application)
                     selectedCSVFile = openFileDialog.FileName;
                     rawCSVFile = selectedCSVFile;
-                    ProcessCSVFile(selectedCSVFile);
+                    await ProcessCSVFile(selectedCSVFile);
                 }
             }
         }
