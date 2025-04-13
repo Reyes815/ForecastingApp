@@ -17,13 +17,15 @@ namespace ForecastingApp
         private MainForm mainForm;
         private string cvs_filepath;
         private List<string> features;
+        private Dictionary<string, string> dictionary;
 
-        public ProphetModel(MainForm mainForm, string path, List<string> processed_features)
+        public ProphetModel(MainForm mainForm, string path, List<string> processed_features, Dictionary<string, string> geminiHyperparams)
         {
             InitializeComponent();
             this.mainForm = mainForm;
-            this.cvs_filepath = path;
+            cvs_filepath = path;
             features = processed_features;
+            dictionary = geminiHyperparams;
         }
 
         private void ProphetModel_FormClosed(object sender, FormClosedEventArgs e)
@@ -62,18 +64,23 @@ namespace ForecastingApp
                 // Debugging: Show the arguments
                 Console.WriteLine($"Running script with arguments: {arguments}");
 
-                // Set up ProcessStartInfo to run the Python script
                 ProcessStartInfo psi = new ProcessStartInfo
                 {
                     FileName = pythonExecutable,
                     Arguments = arguments,
-                    UseShellExecute = true,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    UseShellExecute = false,
                     CreateNoWindow = false
                 };
 
-                // Start the process to run the Python script
-                Process process = new Process { StartInfo = psi };
-                process.Start();
+                Process process = Process.Start(psi);
+                string output = process.StandardOutput.ReadToEnd();
+                string errors = process.StandardError.ReadToEnd();
+                process.WaitForExit();
+
+                Console.WriteLine(output);
+                Console.WriteLine(errors);
             }
             catch (Exception ex)
             {
@@ -81,68 +88,45 @@ namespace ForecastingApp
             }
         }
 
+        private void ProphetModel_load(object sender, EventArgs e)
+        {
+            // Show the hyperparameters in label_Hyperparameters
+            StringBuilder hyperparamText = new StringBuilder("Recommended Hyperparameters:");
+            foreach (var kvp in dictionary)
+            {
+                hyperparamText.AppendLine($"{kvp.Key}: {kvp.Value}");
+            }
+            label_Hyperparameters.Text = hyperparamText.ToString();
+
+            if (dictionary != null)
+            {
+                period_txtbox.Text = dictionary["forecast_period"];
+                train_txtbox.Text = dictionary["train_ratio"];
+                weekly_rbtn.Checked = dictionary["weekly"] == "true";
+                monthly_rbtn.Checked = dictionary["monthly"] == "true";
+                Enable_rbtn.Checked = dictionary["holidays_enabled"] == "true";
+                Disable_rbtn.Checked = !Enable_rbtn.Checked;
+                Enable_rbtn2.Checked = dictionary["standardization"] == "true";
+                Disable_rbtn2.Checked = !Enable_rbtn2.Checked;
+                additive_rbtn.Checked = dictionary["seasonality_mode"] == "additive";
+                multiplicative_rbtn.Checked = !additive_rbtn.Checked;
+                linear_rbtn.Checked = dictionary["growth"] == "linear";
+                logistic_rbtn.Checked = !linear_rbtn.Checked;
+                cp_pscale_txtbox.Text = dictionary["changepoint_prior_scale"];
+                s_pscale_txtbox.Text = dictionary["seasonality_prior_scale"];
+
+                target_dropdown.Items.Clear();
+                target_dropdown.Items.AddRange(features.ToArray());
+                if (target_dropdown.Items.Count > 0)
+                {
+                    target_dropdown.SelectedItem = dictionary["target_column"];
+                }
+            }
+        }
 
         private void button1_Click(object sender, EventArgs e)
         {
             RunProphetPrediction();
-        }
-
-
-        private void textBox1_TextChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void textBox3_TextChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void textBox8_TextChanged(object sender, EventArgs e)
-        {
-
-        }
-
-
-        private void ProphetModel_load(object sender, EventArgs e)
-        {
-            // Set default text values
-            period_txtbox.Text = "30";  // Default forecast period (days)
-            train_txtbox.Text = "0.8";  // 80% training data
-            cp_pscale_txtbox.Text = "0.05"; // Default changepoint scale
-            s_pscale_txtbox.Text = "10"; // Default seasonality scale
-
-            // Set default radio button selections
-            Enable_rbtn.Checked = true;   // Enable holidays
-            Disable_rbtn.Checked = false;
-
-            Enable_rbtn2.Checked = false;  // Enable standardization
-            Disable_rbtn2.Checked = true;
-
-            // Default seasonality settings
-            weekly_rbtn.Checked = true;   // Default to weekly seasonality
-            monthly_rbtn.Checked = false;
-
-            additive_rbtn.Checked = true;  // Default to additive mode
-            multiplicative_rbtn.Checked = false;
-
-            linear_rbtn.Checked = true;
-            logistic_rbtn.Checked = false;
-
-            // Ensure 'features' is not null before accessing it
-            if (features != null && features.Count > 0)
-            {
-                target_dropdown.Items.Clear();  // Clear existing items to prevent duplicates
-                target_dropdown.Items.AddRange(features.ToArray());
-
-                // Set the first feature as the default selection, only if items exist
-                if (target_dropdown.Items.Count > 0)
-                {
-                    target_dropdown.SelectedIndex = 0;
-                }
-            }
-
-            //RunPythonPreprocessingScript();
         }
     }
 }

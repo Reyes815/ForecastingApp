@@ -12,16 +12,18 @@ PYTHON_EXECUTABLE = os.path.join(VENV_DIR, "Scripts", "python.exe") if os.name =
 if not os.path.exists(PYTHON_EXECUTABLE):
     PYTHON_EXECUTABLE = os.path.join(VENV_DIR, "bin", "python3")
 
-# List of required packages for Prophet-based forecasting
+# Updated list of required packages
 REQUIRED_PACKAGES = [
     "pandas",
+    "numpy",  # Added
     "scikit-learn",
     "prophet",
     "xgboost",
     "joblib",
     "matplotlib",
     "seaborn",
-    "pythonnet"
+    "pythonnet",
+    "warnings"  # Not needed for install, part of stdlib, safe to include
 ]
 
 def create_virtual_env():
@@ -52,6 +54,9 @@ def wait_for_file(file_path, timeout=30):
 def install_missing_packages():
     """Check and install missing packages inside the virtual environment."""
     for package in REQUIRED_PACKAGES:
+        # Skip 'warnings' as it's part of the standard library
+        if package == "warnings":
+            continue
         try:
             subprocess.run([PYTHON_EXECUTABLE, "-c", f"import {package}"], check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         except subprocess.CalledProcessError:
@@ -74,9 +79,5 @@ def run_prophet_forecast(csv_filepath, period, train, test, split, weekly, month
 if __name__ == "__main__":
     create_virtual_env()
     install_missing_packages()
-    
-    # Example usage (you can replace with actual arguments from UI)
-    test_csv_filepath = "data/sales_data.csv"  # Replace with actual file path
-    run_prophet_forecast(test_csv_filepath, 30, 0.8, 0.2, 0.7, True, False, True, True, "Profit")
 
     input("\nPress Enter to exit...")

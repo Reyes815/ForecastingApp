@@ -29,6 +29,7 @@
         private void InitializeComponent()
         {
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
+            this.label_Dataset = new System.Windows.Forms.Label();
             this.label8 = new System.Windows.Forms.Label();
             this.button1 = new System.Windows.Forms.Button();
             this.panel1 = new System.Windows.Forms.Panel();
@@ -45,7 +46,6 @@
             this.label5 = new System.Windows.Forms.Label();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.uploadToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.label_Dataset = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -80,6 +80,15 @@
             this.splitContainer1.SplitterDistance = 278;
             this.splitContainer1.TabIndex = 0;
             // 
+            // label_Dataset
+            // 
+            this.label_Dataset.Location = new System.Drawing.Point(11, 129);
+            this.label_Dataset.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label_Dataset.Name = "label_Dataset";
+            this.label_Dataset.Size = new System.Drawing.Size(256, 212);
+            this.label_Dataset.TabIndex = 7;
+            this.label_Dataset.Text = "Dataset Description";
+            // 
             // label8
             // 
             this.label8.AutoSize = true;
@@ -112,7 +121,6 @@
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(200, 114);
             this.panel1.TabIndex = 5;
-            this.panel1.Paint += new System.Windows.Forms.PaintEventHandler(this.panel1_Paint);
             // 
             // radioButton3
             // 
@@ -211,7 +219,7 @@
             // 
             this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dataGridView1.Location = new System.Drawing.Point(12, 36);
-            this.dataGridView1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.dataGridView1.Margin = new System.Windows.Forms.Padding(2);
             this.dataGridView1.Name = "dataGridView1";
             this.dataGridView1.RowHeadersWidth = 51;
             this.dataGridView1.RowTemplate.Height = 24;
@@ -247,15 +255,6 @@
             this.uploadToolStripMenuItem.Size = new System.Drawing.Size(57, 20);
             this.uploadToolStripMenuItem.Text = "Upload";
             this.uploadToolStripMenuItem.Click += new System.EventHandler(this.UploadMenuBtn);
-            // 
-            // label_Dataset
-            // 
-            this.label_Dataset.Location = new System.Drawing.Point(11, 129);
-            this.label_Dataset.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label_Dataset.Name = "label_Dataset";
-            this.label_Dataset.Size = new System.Drawing.Size(256, 171);
-            this.label_Dataset.TabIndex = 7;
-            this.label_Dataset.Text = "Dataset Description";
             // 
             // MainForm
             // 
