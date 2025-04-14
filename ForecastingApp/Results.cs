@@ -54,15 +54,27 @@ namespace ForecastingApp
 
                 JObject jsonObject = JObject.Parse(jsonContent);
 
+
                 // Access values using keys
                 double loss = jsonObject["Loss (MSE)"].Value<double>();
                 double mae = jsonObject["Mean Absolute Error (MAE)"].Value<double>();
                 double r2 = jsonObject["R2 Score"].Value<double>();
+                double rmse = jsonObject["Root Mean Squared Error (RMSE)"].Value<double>();
+                double mape = jsonObject["Mean Absolute Percentage Error (MAPE)"].Value<double>();
+                double accuracy = jsonObject["Accuracy (100 - MAPE)%"].Value<double>();
                 double trainingDuration = jsonObject["Training Duration (seconds)"].Value<double>();
 
 
-                string[] metric_names = { "Loss (MSE)", "Mean Absolute Error (MAE)", "R2 Score", "Training Duration (seconds)" };
-                double[] metrics = { loss, mae, r2, trainingDuration };
+                string[] metric_names =
+                {   "Loss (MSE)",
+                    "Mean Absolute Error (MAE)",
+                    "R2 Score",
+                    "Root Mean Squared Error (RMSE)",
+                    "Mean Absolute Percentage Error (MAPE)",
+                    "Accuracy",
+                    "Training Duration (seconds)"
+                };
+                double[] metrics = { loss, mae, r2, rmse, mape, accuracy, trainingDuration };
 
                 for (int i = 0; i < metrics.Length; i++)
                 {

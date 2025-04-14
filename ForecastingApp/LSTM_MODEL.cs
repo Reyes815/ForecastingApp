@@ -18,15 +18,17 @@ namespace ForecastingApp
         private MainForm mainForm;
         private string cvs_filepath;
         private List<string> features;
+        private string scaler;
         //private Stopwatch stopwatch;
-        public LSTM_MODEL(MainForm form, string selectedcsv, List<string> processed_features)
+        public LSTM_MODEL(MainForm form, string selectedcsv, string selected_scaler,  List<string> processed_features)
         {
             InitializeComponent();
             mainForm = form;
             cvs_filepath = selectedcsv;
             features = processed_features;
+            scaler = selected_scaler;
             //stopwatch = new Stopwatch();
-            
+
         }
 
         private void LSTM_MODEL_CLOSE(object sender, FormClosedEventArgs e)
@@ -41,6 +43,7 @@ namespace ForecastingApp
                 string projectRoot = Directory.GetParent(Directory.GetCurrentDirectory()).Parent.Parent.FullName;
                 string pythonExecutable = Path.Combine(projectRoot, "Scripts", "python_env", "Scripts", "python.exe");
                 string picklefilepath = Path.Combine(projectRoot, "Scripts", "Saved preprocessed csv", $"{cvs_filepath}");
+                string scalerfilepath = Path.Combine(projectRoot, "Scripts", "Saved preprocessed csv", $"{scaler}");
                 string scriptPath = Path.Combine(Application.StartupPath, "..", "..", "..", "Scripts", "LSTM_Model.py");
 
                 string epochs = epoch_textbox.Text;
@@ -50,7 +53,7 @@ namespace ForecastingApp
                 string timeSteps = timesteps_textbox.Text;
                 string target = target_dropdown.Text;
 
-                string arguments = $"\"{scriptPath}\" {epochs} {neuronslvl1} {neuronslvl2} {batchSize} {timeSteps} \"{target}\" \"{picklefilepath}\"";
+                string arguments = $"\"{scriptPath}\" {epochs} {neuronslvl1} {neuronslvl2} {batchSize} {timeSteps} \"{target}\" \"{picklefilepath}\" \"{scalerfilepath}\"";
 
 
                 ProcessStartInfo psi = new ProcessStartInfo

@@ -93,14 +93,21 @@ def process_csv(file_path):
         pickle_filename = os.path.splitext(os.path.basename(file_path))[0] + "_processed.pkl"
         pickle_path = os.path.join(save_dir, pickle_filename)
 
+        pickle_scaler = os.path.splitext(os.path.basename(file_path))[0] + "_scaler.pkl"
+        pickle_scaler_path = os.path.join(save_dir, pickle_scaler)
+
         # Save the processed DataFrame as a Pickle file
         with open(pickle_path, "wb") as f:
             pickle.dump(df_encoded, f)
+
+        with open(pickle_scaler_path, "wb") as f:
+            pickle.dump(scaler, f)
 
         # Prepare results
         result = {
             "filename": file_path.split("/")[-1],  # Get filename from path
             "saved_pickle": pickle_filename,
+            "saved_scaler": pickle_scaler,
             "instances": len(df),
             "features_before_encoding": len(features),
             "features_after_encoding": len(df_encoded.columns),

@@ -5,7 +5,7 @@ import numpy as np
 import sys
 import pickle
 
-from sklearn.metrics import r2_score
+from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import LSTM, Dense
 import matplotlib.pyplot as plt
@@ -13,6 +13,34 @@ import seaborn as sns
 import os
 
 pd.set_option('display.max_columns', None)
+
+
+def inverse_transform_target(y_scaled, scaler, target_column):
+    """
+    Inverse transform scaled predictions or actuals for a single target column
+    using a full-column scaler.
+
+    Args:
+        y_scaled (np.array): Scaled predictions or true values (1D or 2D)
+        scaler (MinMaxScaler): Scaler fitted on all numerical columns
+        target_column (str): Column name of the selected target
+
+    Returns:
+        np.array: Inverse-transformed values for the target column
+    """
+    if y_scaled.ndim == 1:
+        y_scaled = y_scaled.reshape(-1, 1)
+
+    # Get the index of the target column in the scaler
+    target_index = list(scaler.feature_names_in_).index(target_column)
+
+    # Create dummy array with all features (same shape as original input to scaler)
+    dummy_input = np.zeros((len(y_scaled), scaler.n_features_in_))
+    dummy_input[:, target_index] = y_scaled[:, 0]
+
+    # Inverse transform and return just the target column
+    y_unscaled = scaler.inverse_transform(dummy_input)[:, target_index]
+    return y_unscaled
 
 def build_lstm_model(neurons_layer1, neurons_layer2, time_steps, feature_count):
     model = Sequential([
@@ -23,9 +51,9 @@ def build_lstm_model(neurons_layer1, neurons_layer2, time_steps, feature_count):
     return model
 
 def main():
-    if len(sys.argv) != 8:
+    if len(sys.argv) != 9:
         print(sys.argv)
-        print("Usage: LSTM_Model.py <epochs> <neurons_layer1> <neurons_layer2> <batch_size> <time_steps> <target_feature> <pickle_filename>")
+        print("Usage: LSTM_Model.py <epochs> <neurons_layer1> <neurons_layer2> <batch_size> <time_steps> <target_feature> <pickle_filename> <pickle_scaler>")
         input("Enter to exit")
         sys.exit(1)
 
@@ -37,12 +65,17 @@ def main():
     timesteps = int(sys.argv[5])
     target = sys.argv[6]
     pickle_filename = sys.argv[7]
+    pickle_scaler = sys.argv[8]
 
     print(f"Running LSTM model with {epochs} epochs, {neurons_layer1} neurons_lvl1, {neurons_layer2} neurons_lvl2, {batch_size} batch size, {timesteps} time steps.")
 
     # Load preprocessed DataFrame
     with open(pickle_filename, 'rb') as f:
         df = pickle.load(f)
+
+    # Load the target scaler
+    with open(pickle_scaler, "rb") as f:
+        target_scaler = pickle.load(f)
 
     # Extract feature columns (all except the target)
     features = [col for col in df.columns if col != target]
@@ -91,22 +124,39 @@ def main():
     # Stop timer
     training_duration = time.time() - start_time
 
-    # Evaluate the model
-    loss, mae = model.evaluate(X_test, y_test)
-    # print(f"Test Loss: {loss}, Test MAE: {mae}")
-
     # Make predictions
     y_pred = model.predict(X_test).reshape(-1)
 
-    # Calculate R^2 Score
-    r2 = r2_score(y_test, y_pred)
+    # y_pred_scaled and y_test_scaled must be 2D for inverse_transform
+    y_pred_unscaled = inverse_transform_target(y_pred, target_scaler, target)
+    y_test_unscaled = inverse_transform_target(y_test, target_scaler, target)
+
+    # Evaluate the model
+    # loss, mae = model.evaluate(X_test, y_test)
+
+    mse = mean_squared_error(y_test_unscaled, y_pred_unscaled)
+    rmse = np.sqrt(mse)
+    mae = mean_absolute_error(y_test_unscaled, y_pred_unscaled)
+
+    # Avoid MAPE explosion from near-zero targets
+    def safe_mape(y_true, y_pred):
+        y_true, y_pred = np.array(y_true), np.array(y_pred)
+        mask = y_true != 0
+        return np.mean(np.abs((y_true[mask] - y_pred[mask]) / y_true[mask])) * 100
+
+    mape = safe_mape(y_test_unscaled, y_pred_unscaled)
+    accuracy = 100 - mape
+    r2 = r2_score(y_test_unscaled, y_pred_unscaled)
 
     # Save evaluation metrics
     metrics = {
-        "Loss (MSE)": round(loss, 4),
-        "Mean Absolute Error (MAE)": round(mae, 4),
-        "R2 Score": round(r2, 4),
-        "Training Duration (seconds)": round(training_duration, 2)
+        "Loss (MSE)": float(round(mse, 4)),
+        "Mean Absolute Error (MAE)": float(round(mae, 4)),
+        "Root Mean Squared Error (RMSE)": float(round(rmse, 4)),
+        "Mean Absolute Percentage Error (MAPE)": float(round(mape, 2)),
+        "R2 Score": float(round(r2, 4)),
+        "Accuracy (100 - MAPE)%": float(round(accuracy, 2)),
+        "Training Duration (seconds)": float(round(training_duration, 2))
     }
 
     metrics_folder = os.path.join(os.path.dirname(__file__), 'Metrics')

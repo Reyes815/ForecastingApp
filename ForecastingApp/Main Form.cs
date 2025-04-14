@@ -23,6 +23,7 @@ namespace ForecastingApp
         private string filePath = "";
         private string rawCSVFile = "";
         private string selectedCSVFile = "";
+        private string LSTM_scaler = "";
         private List<string> features = new List<string>();
         private static readonly HttpClient client = new HttpClient();
         private readonly string API_Key = "AIzaSyBpw0WyxmUU2F7PsMQMf1Xh9C89GtGpRl0";
@@ -191,6 +192,7 @@ namespace ForecastingApp
                     label8.Text = $"Features After Encoding: {result["features_after_encoding"]}";
 
                     this.selectedCSVFile = result["saved_pickle"];
+                    this.LSTM_scaler = result["saved_scaler"];
 
                     features.Clear();
 
@@ -260,7 +262,7 @@ namespace ForecastingApp
             {
                 case "LSTM":
                     this.Hide();
-                    LSTM_MODEL newLSTM_FORM = new LSTM_MODEL(this, this.selectedCSVFile, this.features);
+                    LSTM_MODEL newLSTM_FORM = new LSTM_MODEL(this, this.selectedCSVFile, this.LSTM_scaler, this.features);
                     newLSTM_FORM.Show();
                     break;
                 case "XGBoost":
