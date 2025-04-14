@@ -75,8 +75,6 @@ namespace ForecastingApp
                         double mae = results["mae"].As<double>();
                         double rmse = results["rmse"].As<double>();
                         double mape = results["mape"].As<double>();
-
-                        MessageBox.Show($"Model Performance:\nMAE: {mae}\nRMSE: {rmse}\nMAPE: {mape}", "Results");
                     }
                 }
             }
@@ -98,6 +96,15 @@ namespace ForecastingApp
 
         private void XGBoost_Load(object sender, EventArgs e)
         {
+            this.Lags.Text = "5";                
+            this.TestSize.Text = "0.2";          
+            this.MaxDepth.Text = "6";             
+            this.LearningRate.Text = "0.1";       
+            this.Estimators.Text = "100";      
+            this.Fraction.Text = "0.8";           
+            this.SubSample.Text = "1.0";          
+            this.L1.Text = "0.0";                
+            this.L2.Text = "1.0";
 
         }
     }

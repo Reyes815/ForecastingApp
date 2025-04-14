@@ -1,4 +1,3 @@
-import sys
 import pandas as pd
 import numpy as np
 from prophet import Prophet
@@ -8,15 +7,18 @@ import matplotlib.pyplot as plt
 import os
 from prophet.make_holidays import make_holidays_df
 import warnings
+import sys
 
 
 def main():
+    print("Running Prophet forecast script...")
     warnings.filterwarnings("ignore", category=FutureWarning)
     plt.rcParams['figure.figsize'] = (17, 5)
 
     if len(sys.argv) != 13:  # Expecting 12 arguments including script name
         print("Usage: Prophet_forecast.py <csv_file> <period> <split> <weekly> <monthly> <holiday> <standardization> <growth> <seasonality_mode> <changepoint_pscale> <seasonality_pscale> <target>")
-        sys.exit(1)
+        input("\nPress Enter to exit...")
+        #sys.exit(1)
 
     # ============================
     # Configurable Parameters
@@ -86,13 +88,16 @@ def main():
             raise ValueError(f"The dataset must contain a '{target_column}' column.")
 
         df['y'] = pd.to_numeric(df[target_column], errors='coerce')
+
         df = df.dropna(subset=['y'])
 
         # ============================
         # Split Data into Train/Test
         # ============================
 
+
         train_size = int(len(df) * train_ratio)
+
         train_data = df.iloc[:train_size][['ds', 'y']]
         test_data = df.iloc[train_size:][['ds', 'y']]
         test_data = test_data.dropna(subset=['y'])
@@ -139,13 +144,11 @@ def main():
 
         # Fit Model
         model.fit(train_data)
-
         # Generate Future Dataframe
         freq = pd.infer_freq(df['ds'])
         if freq is None:
             freq = 'D'
         future = model.make_future_dataframe(periods=forecast_period, freq=freq)
-
         # Forecast Future
         forecast = model.predict(future)
 
@@ -216,11 +219,14 @@ def main():
             plt.subplots_adjust(top=0.85)
             plt.show()
 
-
         # Call enhanced plot function
         plot_forecast_with_metrics(train_data, test_data, forecast_test, mape, rmse, mae)
 
     except Exception as e:
-        print(f"\nError: {e}")
+        print("\nAn error occurred:")
+        traceback.print_exc()
 
     input("\nPress Enter to exit...")
+
+if __name__ == "__main__":
+    main()
