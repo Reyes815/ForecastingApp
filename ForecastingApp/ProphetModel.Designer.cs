@@ -64,6 +64,7 @@
             this.label12 = new System.Windows.Forms.Label();
             this.label13 = new System.Windows.Forms.Label();
             this.label14 = new System.Windows.Forms.Label();
+            this.label_Hyperparameters = new System.Windows.Forms.Label();
             this.SeasonMode_grpbox.SuspendLayout();
             this.Growth_grpbox.SuspendLayout();
             this.Holiday_grpbox.SuspendLayout();
@@ -86,11 +87,11 @@
             // 
             // train_btn
             // 
-            this.train_btn.Location = new System.Drawing.Point(357, 382);
+            this.train_btn.Location = new System.Drawing.Point(359, 434);
             this.train_btn.Name = "train_btn";
             this.train_btn.Size = new System.Drawing.Size(107, 33);
             this.train_btn.TabIndex = 39;
-            this.train_btn.Text = "Train";
+            this.train_btn.Text = "Enter";
             this.train_btn.UseVisualStyleBackColor = true;
             this.train_btn.Click += new System.EventHandler(this.button1_Click);
             // 
@@ -418,11 +419,21 @@
             this.label14.TabIndex = 76;
             this.label14.Text = "Min: 0.0001 Max: 50+";
             // 
+            // label_Hyperparameters
+            // 
+            this.label_Hyperparameters.Location = new System.Drawing.Point(452, 293);
+            this.label_Hyperparameters.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label_Hyperparameters.Name = "label_Hyperparameters";
+            this.label_Hyperparameters.Size = new System.Drawing.Size(328, 86);
+            this.label_Hyperparameters.TabIndex = 77;
+            this.label_Hyperparameters.Text = "Hyperparameters";
+            // 
             // ProphetModel
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(815, 438);
+            this.ClientSize = new System.Drawing.Size(815, 479);
+            this.Controls.Add(this.label_Hyperparameters);
             this.Controls.Add(this.label14);
             this.Controls.Add(this.label13);
             this.Controls.Add(this.label12);
@@ -504,5 +515,6 @@
         private System.Windows.Forms.Label label12;
         private System.Windows.Forms.Label label13;
         private System.Windows.Forms.Label label14;
+        private System.Windows.Forms.Label label_Hyperparameters;
     }
 }
