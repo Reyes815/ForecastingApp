@@ -4,6 +4,8 @@ import pandas as pd
 import numpy as np
 import sys
 import pickle
+import random
+import tensorflow as tf
 
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 from tensorflow.keras.models import Sequential
@@ -13,6 +15,14 @@ import seaborn as sns
 import os
 
 pd.set_option('display.max_columns', None)
+
+# Set the PYTHONHASHSEED environment variable
+os.environ['PYTHONHASHSEED'] = '42'
+
+# Set other seeds
+random.seed(42)
+np.random.seed(42)
+tf.random.set_seed(42)
 
 
 def inverse_transform_target(y_scaled, scaler, target_column):
