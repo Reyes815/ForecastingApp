@@ -365,3 +365,7 @@ FodyWeavers.xsd
 # Ignore Python virtual environment
 python_env/
 venv/
+/ForecastingApp/Scripts/Graphs
+/ForecastingApp/Scripts/Saved preprocessed csv
+/ForecastingApp/Scripts/Nike Dataset.csv
+*.csv
