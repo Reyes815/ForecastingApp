@@ -36,8 +36,6 @@
             this.label2 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this.Hyperparameters = new System.Windows.Forms.Label();
-            this.weekly_rbtn = new System.Windows.Forms.RadioButton();
-            this.monthly_rbtn = new System.Windows.Forms.RadioButton();
             this.Disable_rbtn = new System.Windows.Forms.RadioButton();
             this.label4 = new System.Windows.Forms.Label();
             this.multiplicative_rbtn = new System.Windows.Forms.RadioButton();
@@ -65,6 +63,11 @@
             this.label13 = new System.Windows.Forms.Label();
             this.label14 = new System.Windows.Forms.Label();
             this.label_Hyperparameters = new System.Windows.Forms.Label();
+            this.label15 = new System.Windows.Forms.Label();
+            this.daily_rbtn = new System.Windows.Forms.CheckBox();
+            this.weekly_rbtn = new System.Windows.Forms.CheckBox();
+            this.yearly_rbtn = new System.Windows.Forms.CheckBox();
+            this.monthly_rbtn = new System.Windows.Forms.CheckBox();
             this.SeasonMode_grpbox.SuspendLayout();
             this.Growth_grpbox.SuspendLayout();
             this.Holiday_grpbox.SuspendLayout();
@@ -87,7 +90,7 @@
             // 
             // train_btn
             // 
-            this.train_btn.Location = new System.Drawing.Point(359, 434);
+            this.train_btn.Location = new System.Drawing.Point(406, 481);
             this.train_btn.Name = "train_btn";
             this.train_btn.Size = new System.Drawing.Size(107, 33);
             this.train_btn.TabIndex = 39;
@@ -144,28 +147,6 @@
             this.Hyperparameters.Size = new System.Drawing.Size(170, 24);
             this.Hyperparameters.TabIndex = 29;
             this.Hyperparameters.Text = "Hyperparameters";
-            // 
-            // weekly_rbtn
-            // 
-            this.weekly_rbtn.AutoSize = true;
-            this.weekly_rbtn.Location = new System.Drawing.Point(66, 207);
-            this.weekly_rbtn.Name = "weekly_rbtn";
-            this.weekly_rbtn.Size = new System.Drawing.Size(118, 17);
-            this.weekly_rbtn.TabIndex = 49;
-            this.weekly_rbtn.TabStop = true;
-            this.weekly_rbtn.Text = "Weekly Seasonality";
-            this.weekly_rbtn.UseVisualStyleBackColor = true;
-            // 
-            // monthly_rbtn
-            // 
-            this.monthly_rbtn.AutoSize = true;
-            this.monthly_rbtn.Location = new System.Drawing.Point(66, 235);
-            this.monthly_rbtn.Name = "monthly_rbtn";
-            this.monthly_rbtn.Size = new System.Drawing.Size(119, 17);
-            this.monthly_rbtn.TabIndex = 50;
-            this.monthly_rbtn.TabStop = true;
-            this.monthly_rbtn.Text = "Monthly Seasonality";
-            this.monthly_rbtn.UseVisualStyleBackColor = true;
             // 
             // Disable_rbtn
             // 
@@ -246,7 +227,7 @@
             // 
             this.label7.AutoSize = true;
             this.label7.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label7.Location = new System.Drawing.Point(618, 73);
+            this.label7.Location = new System.Drawing.Point(253, 304);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(99, 20);
             this.label7.TabIndex = 59;
@@ -266,7 +247,7 @@
             // 
             this.Growth_grpbox.Controls.Add(this.linear_rbtn);
             this.Growth_grpbox.Controls.Add(this.logistic_rbtn);
-            this.Growth_grpbox.Location = new System.Drawing.Point(646, 104);
+            this.Growth_grpbox.Location = new System.Drawing.Point(270, 335);
             this.Growth_grpbox.Name = "Growth_grpbox";
             this.Growth_grpbox.Size = new System.Drawing.Size(86, 59);
             this.Growth_grpbox.TabIndex = 64;
@@ -276,7 +257,7 @@
             // 
             this.label8.AutoSize = true;
             this.label8.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label8.Location = new System.Drawing.Point(622, 172);
+            this.label8.Location = new System.Drawing.Point(427, 304);
             this.label8.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(115, 20);
@@ -286,7 +267,7 @@
             // target_dropdown
             // 
             this.target_dropdown.FormattingEnabled = true;
-            this.target_dropdown.Location = new System.Drawing.Point(646, 203);
+            this.target_dropdown.Location = new System.Drawing.Point(455, 335);
             this.target_dropdown.Margin = new System.Windows.Forms.Padding(2);
             this.target_dropdown.Name = "target_dropdown";
             this.target_dropdown.Size = new System.Drawing.Size(134, 21);
@@ -357,7 +338,7 @@
             // 
             // cp_pscale_txtbox
             // 
-            this.cp_pscale_txtbox.Location = new System.Drawing.Point(66, 335);
+            this.cp_pscale_txtbox.Location = new System.Drawing.Point(66, 346);
             this.cp_pscale_txtbox.Name = "cp_pscale_txtbox";
             this.cp_pscale_txtbox.Size = new System.Drawing.Size(49, 20);
             this.cp_pscale_txtbox.TabIndex = 71;
@@ -366,7 +347,7 @@
             // 
             this.label10.AutoSize = true;
             this.label10.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label10.Location = new System.Drawing.Point(49, 293);
+            this.label10.Location = new System.Drawing.Point(49, 304);
             this.label10.Name = "label10";
             this.label10.Size = new System.Drawing.Size(180, 20);
             this.label10.TabIndex = 70;
@@ -374,7 +355,7 @@
             // 
             // s_pscale_txtbox
             // 
-            this.s_pscale_txtbox.Location = new System.Drawing.Point(270, 335);
+            this.s_pscale_txtbox.Location = new System.Drawing.Point(66, 424);
             this.s_pscale_txtbox.Name = "s_pscale_txtbox";
             this.s_pscale_txtbox.Size = new System.Drawing.Size(52, 20);
             this.s_pscale_txtbox.TabIndex = 73;
@@ -383,7 +364,7 @@
             // 
             this.label11.AutoSize = true;
             this.label11.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label11.Location = new System.Drawing.Point(253, 293);
+            this.label11.Location = new System.Drawing.Point(49, 382);
             this.label11.Name = "label11";
             this.label11.Size = new System.Drawing.Size(171, 20);
             this.label11.TabIndex = 72;
@@ -403,7 +384,7 @@
             // 
             this.label13.AutoSize = true;
             this.label13.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label13.Location = new System.Drawing.Point(126, 338);
+            this.label13.Location = new System.Drawing.Point(126, 349);
             this.label13.Name = "label13";
             this.label13.Size = new System.Drawing.Size(101, 13);
             this.label13.TabIndex = 75;
@@ -413,7 +394,7 @@
             // 
             this.label14.AutoSize = true;
             this.label14.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label14.Location = new System.Drawing.Point(328, 338);
+            this.label14.Location = new System.Drawing.Point(124, 427);
             this.label14.Name = "label14";
             this.label14.Size = new System.Drawing.Size(110, 13);
             this.label14.TabIndex = 76;
@@ -421,18 +402,73 @@
             // 
             // label_Hyperparameters
             // 
-            this.label_Hyperparameters.Location = new System.Drawing.Point(452, 293);
+            this.label_Hyperparameters.Location = new System.Drawing.Point(598, 115);
             this.label_Hyperparameters.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label_Hyperparameters.Name = "label_Hyperparameters";
-            this.label_Hyperparameters.Size = new System.Drawing.Size(328, 86);
+            this.label_Hyperparameters.Size = new System.Drawing.Size(296, 340);
             this.label_Hyperparameters.TabIndex = 77;
             this.label_Hyperparameters.Text = "Hyperparameters";
+            // 
+            // label15
+            // 
+            this.label15.AutoSize = true;
+            this.label15.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label15.Location = new System.Drawing.Point(597, 73);
+            this.label15.Name = "label15";
+            this.label15.Size = new System.Drawing.Size(143, 20);
+            this.label15.TabIndex = 80;
+            this.label15.Text = "Recommendations";
+            // 
+            // daily_rbtn
+            // 
+            this.daily_rbtn.AutoSize = true;
+            this.daily_rbtn.Location = new System.Drawing.Point(66, 205);
+            this.daily_rbtn.Name = "daily_rbtn";
+            this.daily_rbtn.Size = new System.Drawing.Size(49, 17);
+            this.daily_rbtn.TabIndex = 81;
+            this.daily_rbtn.Text = "Daily";
+            this.daily_rbtn.UseVisualStyleBackColor = true;
+            // 
+            // weekly_rbtn
+            // 
+            this.weekly_rbtn.AutoSize = true;
+            this.weekly_rbtn.Location = new System.Drawing.Point(66, 228);
+            this.weekly_rbtn.Name = "weekly_rbtn";
+            this.weekly_rbtn.Size = new System.Drawing.Size(62, 17);
+            this.weekly_rbtn.TabIndex = 82;
+            this.weekly_rbtn.Text = "Weekly";
+            this.weekly_rbtn.UseVisualStyleBackColor = true;
+            // 
+            // yearly_rbtn
+            // 
+            this.yearly_rbtn.AutoSize = true;
+            this.yearly_rbtn.Location = new System.Drawing.Point(66, 274);
+            this.yearly_rbtn.Name = "yearly_rbtn";
+            this.yearly_rbtn.Size = new System.Drawing.Size(55, 17);
+            this.yearly_rbtn.TabIndex = 84;
+            this.yearly_rbtn.Text = "Yearly";
+            this.yearly_rbtn.UseVisualStyleBackColor = true;
+            // 
+            // monthly_rbtn
+            // 
+            this.monthly_rbtn.AutoSize = true;
+            this.monthly_rbtn.Location = new System.Drawing.Point(66, 251);
+            this.monthly_rbtn.Name = "monthly_rbtn";
+            this.monthly_rbtn.Size = new System.Drawing.Size(63, 17);
+            this.monthly_rbtn.TabIndex = 83;
+            this.monthly_rbtn.Text = "Monthly";
+            this.monthly_rbtn.UseVisualStyleBackColor = true;
             // 
             // ProphetModel
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(815, 479);
+            this.ClientSize = new System.Drawing.Size(925, 526);
+            this.Controls.Add(this.yearly_rbtn);
+            this.Controls.Add(this.monthly_rbtn);
+            this.Controls.Add(this.weekly_rbtn);
+            this.Controls.Add(this.daily_rbtn);
+            this.Controls.Add(this.label15);
             this.Controls.Add(this.label_Hyperparameters);
             this.Controls.Add(this.label14);
             this.Controls.Add(this.label13);
@@ -442,9 +478,7 @@
             this.Controls.Add(this.cp_pscale_txtbox);
             this.Controls.Add(this.label10);
             this.Controls.Add(this.label9);
-            this.Controls.Add(this.weekly_rbtn);
             this.Controls.Add(this.Standard_grpbox);
-            this.Controls.Add(this.monthly_rbtn);
             this.Controls.Add(this.Holiday_grpbox);
             this.Controls.Add(this.label8);
             this.Controls.Add(this.target_dropdown);
@@ -487,8 +521,6 @@
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label Hyperparameters;
-        private System.Windows.Forms.RadioButton weekly_rbtn;
-        private System.Windows.Forms.RadioButton monthly_rbtn;
         private System.Windows.Forms.RadioButton Disable_rbtn;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.RadioButton multiplicative_rbtn;
@@ -516,5 +548,10 @@
         private System.Windows.Forms.Label label13;
         private System.Windows.Forms.Label label14;
         private System.Windows.Forms.Label label_Hyperparameters;
+        private System.Windows.Forms.Label label15;
+        private System.Windows.Forms.CheckBox daily_rbtn;
+        private System.Windows.Forms.CheckBox weekly_rbtn;
+        private System.Windows.Forms.CheckBox yearly_rbtn;
+        private System.Windows.Forms.CheckBox monthly_rbtn;
     }
 }

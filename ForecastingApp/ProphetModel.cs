@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -17,20 +18,20 @@ namespace ForecastingApp
         private MainForm mainForm;
         private string cvs_filepath;
         private List<string> features;
-        private Dictionary<string, string> dictionary;
+        private string suggestions;
 
-        public ProphetModel(MainForm mainForm, string path, List<string> processed_features, Dictionary<string, string> geminiHyperparams)
+        public ProphetModel(MainForm mainForm, string path, List<string> processed_features, string geminiHyperparams)
         {
             InitializeComponent();
             this.mainForm = mainForm;
             cvs_filepath = path;
             features = processed_features;
-            dictionary = geminiHyperparams;
+            suggestions = geminiHyperparams;
         }
 
         private void ProphetModel_FormClosed(object sender, FormClosedEventArgs e)
         {
-            mainForm.Show(); // Show the main form when this form is closed
+            mainForm.Show();
         }
 
         private void RunProphetPrediction()
@@ -45,8 +46,10 @@ namespace ForecastingApp
                 // Get user inputs from the form
                 string period = period_txtbox.Text;
                 string train = train_txtbox.Text;
+                bool daily = daily_rbtn.Checked;
                 bool weekly = weekly_rbtn.Checked;
                 bool monthly = monthly_rbtn.Checked;
+                bool yearly = yearly_rbtn.Checked;
                 bool holiday = !Disable_rbtn.Checked;
                 bool standardization = !Disable_rbtn2.Checked;
                 string growth = linear_rbtn.Checked ? "flat" : logistic_rbtn.Checked ? "flat" : "linear";  // Default to "linear"
@@ -57,7 +60,7 @@ namespace ForecastingApp
 
                 // Build the argument string in correct order
                 string arguments = $"\"{scriptPath}\" \"{cvs_filepath}\" {period} {train} " +
-                                   $"{weekly.ToString().ToLower()} {monthly.ToString().ToLower()} {holiday.ToString().ToLower()} " +
+                                   $"{daily.ToString().ToLower()} {weekly.ToString().ToLower()} {monthly.ToString().ToLower()} {yearly.ToString().ToLower()} {holiday.ToString().ToLower()} " +
                                    $"{standardization.ToString().ToLower()} \"{growth}\" \"{seasonality_mode}\" " +
                                    $"{changepoint_pscale} {seasonality_pscale} \"{target}\"";
 
@@ -68,19 +71,23 @@ namespace ForecastingApp
                 {
                     FileName = pythonExecutable,
                     Arguments = arguments,
-                    RedirectStandardOutput = true,
-                    RedirectStandardError = true,
                     UseShellExecute = false,
                     CreateNoWindow = false
+                    //RedirectStandardOutput = true,
+                    //RedirectStandardError = true,
+                    //UseShellExecute = false,
+                    //CreateNoWindow = false
                 };
 
-                Process process = Process.Start(psi);
-                string output = process.StandardOutput.ReadToEnd();
-                string errors = process.StandardError.ReadToEnd();
-                process.WaitForExit();
+                //Process process = Process.Start(psi);
+                
+                //process.WaitForExit();
 
-                Console.WriteLine(output);
-                Console.WriteLine(errors);
+                Process process = new Process { StartInfo = psi, EnableRaisingEvents = true };
+
+                //stopwatch.Start();
+                process.Start();
+
             }
             catch (Exception ex)
             {
@@ -88,40 +95,79 @@ namespace ForecastingApp
             }
         }
 
+
         private void ProphetModel_load(object sender, EventArgs e)
         {
-            // Show the hyperparameters in label_Hyperparameters
-            StringBuilder hyperparamText = new StringBuilder("Recommended Hyperparameters:");
-            foreach (var kvp in dictionary)
-            {
-                hyperparamText.AppendLine($"{kvp.Key}: {kvp.Value}");
-            }
-            label_Hyperparameters.Text = hyperparamText.ToString();
+            string cleanedJson = suggestions.Trim();
 
-            if (dictionary != null)
+            // If wrapped in ```json ... ```
+            if (cleanedJson.StartsWith("```"))
             {
-                period_txtbox.Text = dictionary["forecast_period"];
-                train_txtbox.Text = dictionary["train_ratio"];
-                weekly_rbtn.Checked = dictionary["weekly"] == "true";
-                monthly_rbtn.Checked = dictionary["monthly"] == "true";
-                Enable_rbtn.Checked = dictionary["holidays_enabled"] == "true";
-                Disable_rbtn.Checked = !Enable_rbtn.Checked;
-                Enable_rbtn2.Checked = dictionary["standardization"] == "true";
-                Disable_rbtn2.Checked = !Enable_rbtn2.Checked;
-                additive_rbtn.Checked = dictionary["seasonality_mode"] == "additive";
-                multiplicative_rbtn.Checked = !additive_rbtn.Checked;
-                linear_rbtn.Checked = dictionary["growth"] == "linear";
-                logistic_rbtn.Checked = !linear_rbtn.Checked;
-                cp_pscale_txtbox.Text = dictionary["changepoint_prior_scale"];
-                s_pscale_txtbox.Text = dictionary["seasonality_prior_scale"];
-
-                target_dropdown.Items.Clear();
-                target_dropdown.Items.AddRange(features.ToArray());
-                if (target_dropdown.Items.Count > 0)
+                int firstBrace = cleanedJson.IndexOf('{');
+                int lastBrace = cleanedJson.LastIndexOf('}');
+                if (firstBrace != -1 && lastBrace != -1)
                 {
-                    target_dropdown.SelectedItem = dictionary["target_column"];
+                    cleanedJson = cleanedJson.Substring(firstBrace, (lastBrace - firstBrace + 1));
                 }
             }
+
+            try
+            {
+                var json = JObject.Parse(cleanedJson);
+                StringBuilder hyperparamText = new StringBuilder("Recommended Hyperparameters:");
+
+                foreach (var kvp in json)
+                {
+                    hyperparamText.AppendLine($"{kvp.Key}: {kvp.Value}");
+                }
+
+                label_Hyperparameters.Text = hyperparamText.ToString();
+            }
+            catch (Exception ex)
+            {
+                label_Hyperparameters.Text = $"Error parsing hyperparameters: {ex.Message}";
+            }
+
+            // Forecasting horizon (e.g., 90 days ahead)
+            period_txtbox.Text = "90";
+
+            // Training split (e.g., 80% train, 20% test)
+            train_txtbox.Text = "0.8";
+
+            // Seasonality toggles (Prophet has built-in yearly and weekly; monthly is custom)
+            daily_rbtn.Checked = true;
+            weekly_rbtn.Checked = true;
+            monthly_rbtn.Checked = true;
+            yearly_rbtn.Checked = true;
+
+            // Holidays enabled (optional, good default to start with disabled)
+            Enable_rbtn.Checked = false;
+            Disable_rbtn.Checked = !Enable_rbtn.Checked;
+
+            // Standardization (optional for Prophet, but can improve performance on large range data)
+            Enable_rbtn2.Checked = false;
+            Disable_rbtn2.Checked = !Enable_rbtn2.Checked;
+
+            // Seasonality Mode
+            additive_rbtn.Checked = true;
+            multiplicative_rbtn.Checked = !additive_rbtn.Checked;
+
+            // Growth Model (linear is default unless your data saturates or caps)
+            linear_rbtn.Checked = true;
+            logistic_rbtn.Checked = !linear_rbtn.Checked;
+
+            // Prior scales — moderate flexibility
+            cp_pscale_txtbox.Text = "0.05";     // Trend changepoint flexibility
+            s_pscale_txtbox.Text = "10";        // Seasonality strength
+
+            // Target column setup
+            target_dropdown.Items.Clear();
+            target_dropdown.Items.AddRange(features.ToArray());
+            if (target_dropdown.Items.Count > 0)
+            {
+                target_dropdown.SelectedItem = target_dropdown.Items[0];
+            }
+
         }
 
         private void button1_Click(object sender, EventArgs e)

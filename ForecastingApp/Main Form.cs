@@ -55,52 +55,71 @@ namespace ForecastingApp
         {
             string url = $"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={API_Key}";
             string featureList = string.Join(", ", features);
+
             string prompt = $"You are analyzing a dataset with the following features: {featureList}. " +
-                "DATASET_ANALYSIS: In two paragraph (5 sentences), describe key insights about the dataset's structure, relationships among features, and any challenges that may affect forecasting. " +
-                "MODEL_RECOMMENDATION: Based on the features, recommend the most suitable model for sales forecasting by replying with only one word: LSTM, XGBoost, or Prophet.";
+                "Return your response in this exact format:\n\n" +
+                "DATASET_ANALYSIS: <Two paragraphs, 2-3 sentences each, summarizing the dataset structure, patterns, and any challenges.>\n" +
+                "MODEL_RECOMMENDATION: <Only one word — either LSTM, XGBoost, or Prophet. Do not explain the choice.>\n\n" +
+                "Do not include any markdown formatting, JSON, or extra text outside of this format.";
 
             var requestBody = new
             {
                 contents = new[]
                 {
-                    new {
-                        parts = new[]
-                        {
-                            new { text = prompt }
-                        }
-                    }
+            new {
+                parts = new[]
+                {
+                    new { text = prompt }
                 }
+            }
+        }
             };
 
-            var json = JsonConvert.SerializeObject(requestBody);
-            var content = new StringContent(json, Encoding.UTF8, "application/json");
-            var response = await client.PostAsync(url, content);
-            var responseString = await response.Content.ReadAsStringAsync();
+            using (HttpClient client = new HttpClient())
+            {
+                var json = JsonConvert.SerializeObject(requestBody);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+                var response = await client.PostAsync(url, content);
+                var responseString = await response.Content.ReadAsStringAsync();
 
-            try
-            {
-                dynamic jsonResponse = JsonConvert.DeserializeObject(responseString);
-                string fullResponse = jsonResponse.candidates[0].content.parts[0].text.ToString();
-                int modelIndex = fullResponse.IndexOf("MODEL_RECOMMENDATION:");
-                string datasetAnalysis = modelIndex > 0 ? fullResponse.Substring(fullResponse.IndexOf("DATASET_ANALYSIS:") + "DATASET_ANALYSIS:".Length, modelIndex - "DATASET_ANALYSIS:".Length).Trim() : "Could not parse dataset analysis.";
-                string modelRecommendation = modelIndex > 0 ? fullResponse.Substring(modelIndex + "MODEL_RECOMMENDATION:".Length).Trim() : fullResponse;
-                return (datasetAnalysis, modelRecommendation);
-            }
-            catch
-            {
-                return ("Error analyzing dataset.", "Error getting model recommendation.");
+                try
+                {
+                    dynamic jsonResponse = JsonConvert.DeserializeObject(responseString);
+                    string fullResponse = jsonResponse.candidates[0].content.parts[0].text.ToString();
+
+                    // Split using fixed markers
+                    var datasetMarker = "DATASET_ANALYSIS:";
+                    var modelMarker = "MODEL_RECOMMENDATION:";
+
+                    int datasetStart = fullResponse.IndexOf(datasetMarker);
+                    int modelStart = fullResponse.IndexOf(modelMarker);
+
+                    if (datasetStart == -1 || modelStart == -1)
+                        return ("Could not parse dataset analysis.", "Parsing Error");
+
+                    string datasetAnalysis = fullResponse.Substring(datasetStart + datasetMarker.Length, modelStart - (datasetStart + datasetMarker.Length)).Trim();
+                    string modelRecommendation = fullResponse.Substring(modelStart + modelMarker.Length).Trim().Split('\n')[0];
+
+                    return (datasetAnalysis, modelRecommendation);
+                }
+                catch
+                {
+                    return ("Error analyzing dataset.", "Error getting model recommendation.");
+                }
             }
         }
 
-        private async Task<Dictionary<string, string>> GetProphetHyperparamSuggestionsFromGemini(List<string> features)
+        //Get recommended hyperparameters for Prophet model from gemini
+        private async Task<string> get_Prophet_Suggestions(List<string> features)
         {
             string url = $"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={API_Key}";
             string featureList = string.Join(", ", features);
             string prompt = $"You are configuring the Prophet model for a dataset with the following features: {featureList}. " +
                 "Return hyperparameter tuning suggestions as a JSON dictionary with the following keys: " +
-                "'forecast_period', 'train_ratio', 'weekly', 'monthly', 'yearly', 'standardization', 'holidays_enabled', " +
-                "'growth', 'seasonality_mode', 'changepoint_prior_scale', 'seasonality_prior_scale', 'target_column'. " +
-                "Only respond with the raw JSON object — do not explain anything.";
+                "'Forecast period', 'train ratio', 'daily', 'weekly', 'monthly', 'yearly', 'standardization', 'holidays enabled', " +
+                "'growth', 'seasonality mode', 'changepoint prior scale', 'seasonality prior scale', 'target column'. " +
+                "Use default if no other answer. daily, weekly, monthly yearly standardization and holidays are true/false only. " +
+                "Only respond with the raw JSON object — do not explain anything. Do not include anyother text aside form the hyperparameters given";
 
             var requestBody = new
             {
@@ -115,34 +134,15 @@ namespace ForecastingApp
                 }
             };
 
-            var json = JsonConvert.SerializeObject(requestBody);
-            var content = new StringContent(json, Encoding.UTF8, "application/json");
-            var response = await client.PostAsync(url, content);
-            var responseString = await response.Content.ReadAsStringAsync();
+            using (HttpClient client = new HttpClient())
+            {
+                var response = await client.PostAsync(url, new StringContent(JsonConvert.SerializeObject(requestBody), Encoding.UTF8, "application/json"));
+                var responseString = await response.Content.ReadAsStringAsync();
 
-            try
-            {
-                dynamic jsonResponse = JsonConvert.DeserializeObject(responseString);
-                string jsonPart = jsonResponse.candidates[0].content.parts[0].text;
-                return JsonConvert.DeserializeObject<Dictionary<string, string>>(jsonPart);
-            }
-            catch
-            {
-                return new Dictionary<string, string>
-                {
-                    { "forecast_period", "30" },
-                    { "train_ratio", "0.8" },
-                    { "weekly", "true" },
-                    { "monthly", "true" },
-                    { "yearly", "true" },
-                    { "standardization", "false" },
-                    { "holidays_enabled", "false" },
-                    { "growth", "linear" },
-                    { "seasonality_mode", "additive" },
-                    { "changepoint_prior_scale", "0.05" },
-                    { "seasonality_prior_scale", "10" },
-                    { "target_column", features.FirstOrDefault() ?? "Sales" }
-                };
+                dynamic result = JsonConvert.DeserializeObject(responseString);
+                string rawOutput = result.candidates[0].content.parts[0].text;
+
+                return rawOutput; // This is the raw JSON string response
             }
         }
 
@@ -240,7 +240,7 @@ namespace ForecastingApp
                     break;
                 case "Prophet":
                     this.Hide();
-                    var hyperparams = await GetProphetHyperparamSuggestionsFromGemini(features);
+                    var hyperparams = await get_Prophet_Suggestions(features);
                     var prophet = new ProphetModel(this, rawCSVFile, features, hyperparams);
                     prophet.Show();
                     break;
