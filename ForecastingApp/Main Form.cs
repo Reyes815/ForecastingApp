@@ -22,6 +22,7 @@ namespace ForecastingApp
         private string selectedCSVFile = "";
         private string LSTM_scaler = "";
         private List<string> features = new List<string>();
+        private string geminiJson = "";
         private static readonly HttpClient client = new HttpClient();
         public readonly string API_Key = "AIzaSyBpw0WyxmUU2F7PsMQMf1Xh9C89GtGpRl0";
 
@@ -51,7 +52,7 @@ namespace ForecastingApp
             }
         }
 
-        private async Task<(string datasetAnalysis, string modelRecommendation)> GetAnalysisFromGemini(List<string> features)
+        private async Task<(string datasetAnalysis, string modelRecommendation)> GetAnalysisFromGemini(string features)
         {
             string url = $"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={API_Key}";
             string featureList = string.Join(", ", features);
@@ -110,7 +111,7 @@ namespace ForecastingApp
         }
 
         //Get recommended hyperparameters for Prophet model from gemini
-        private async Task<string> get_Prophet_Suggestions(List<string> features)
+        private async Task<string> get_Prophet_Suggestions(string features)
         {
             string url = $"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={API_Key}";
             string featureList = string.Join(", ", features);
@@ -145,6 +146,63 @@ namespace ForecastingApp
                 return rawOutput; // This is the raw JSON string response
             }
         }
+
+        private async Task GenerateGeminiJSON(string csvFilePath)
+        {
+            try
+            {
+                string projectRoot = Directory.GetParent(Directory.GetCurrentDirectory()).Parent.Parent.FullName;
+                string pythonExecutable = Path.Combine(projectRoot, "Scripts", "python_env", "Scripts", "python.exe");
+                string scriptPath = Path.Combine(projectRoot, "Scripts", "csv-json.py");
+
+                if (!File.Exists(pythonExecutable))
+                {
+                    MessageBox.Show("Python executable not found: " + pythonExecutable, "Python Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                ProcessStartInfo psi = new ProcessStartInfo
+                {
+                    FileName = pythonExecutable,
+                    Arguments = $"\"{scriptPath}\" \"{csvFilePath}\"",
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    UseShellExecute = false,
+                    CreateNoWindow = true
+                };
+
+                using (Process process = new Process())
+                {
+                    process.StartInfo = psi;
+                    process.Start();
+
+                    string output = await process.StandardOutput.ReadToEndAsync();
+                    string errors = await process.StandardError.ReadToEndAsync();
+                    process.WaitForExit();
+
+                    if (string.IsNullOrWhiteSpace(output))
+                    {
+                        MessageBox.Show("Script returned empty output. Please check the CSV file or Python logic.", "Empty Output", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        return;
+                    }
+
+                    // Check for string-based errors from Python script
+                    if (output.StartsWith("Error") || output.StartsWith("An error occurred"))
+                    {
+                        MessageBox.Show("Script returned an error:\n" + output, "Script Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        return;
+                    }
+                    geminiJson = output.Trim(); // Return the raw JSON string
+                    Console.WriteLine("Raw Gemini JSON:\n" + geminiJson);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Failed to run csv-json script:\n" + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+        }
+
 
         private async Task ProcessCSVFile(string filePath)
         {
@@ -196,9 +254,10 @@ namespace ForecastingApp
                         dataGridView1.Rows.Add(column["name"], column["type"], column["unique_values"], column["null_values"], column["category"]);
                     }
 
-                    var (datasetAnalysis, modelRecommendation) = await GetAnalysisFromGemini(features);
+                    var (datasetAnalysis, modelRecommendation) = await GetAnalysisFromGemini(geminiJson);
                     label_Dataset.Text = datasetAnalysis;
                     label_Model.Text = modelRecommendation;
+
                 }
             }
             catch (Exception ex)
@@ -219,6 +278,7 @@ namespace ForecastingApp
                 {
                     selectedCSVFile = openFileDialog.FileName;
                     rawCSVFile = selectedCSVFile;
+                    await GenerateGeminiJSON(rawCSVFile);
                     await ProcessCSVFile(selectedCSVFile);
                 }
             }
@@ -240,7 +300,7 @@ namespace ForecastingApp
                     break;
                 case "Prophet":
                     this.Hide();
-                    var hyperparams = await get_Prophet_Suggestions(features);
+                    var hyperparams = await get_Prophet_Suggestions(geminiJson);
                     var prophet = new ProphetModel(this, rawCSVFile, features, hyperparams);
                     prophet.Show();
                     break;

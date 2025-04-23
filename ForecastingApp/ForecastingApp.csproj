@@ -87,6 +87,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ProphetResults.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ProphetResults.Designer.cs">
+      <DependentUpon>ProphetResults.cs</DependentUpon>
+    </Compile>
     <Compile Include="ProphetModel.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -124,6 +130,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="ProphetModel.resx">
       <DependentUpon>ProphetModel.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ProphetResults.resx">
+      <DependentUpon>ProphetResults.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Results.resx">
       <DependentUpon>Results.cs</DependentUpon>

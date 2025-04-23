@@ -6,13 +6,12 @@ import xgboost as xgb
 from joblib import dump
 import matplotlib.pyplot as plt
 import os
-import sys
 import time
-
-print("Received arguments:", sys.argv)
 
 def run(selectedCSVFile, param_dict=None, num_lags=5, test_size=0.2):
     """Train an XGBoost model and visualize results in Prophet-style."""
+
+    param_dict = dict(param_dict) if param_dict is not None else {}
 
     if not os.path.exists(selectedCSVFile):
         raise FileNotFoundError(f"Error: File '{selectedCSVFile}' does not exist.")
@@ -37,17 +36,26 @@ def run(selectedCSVFile, param_dict=None, num_lags=5, test_size=0.2):
     if date_col:
         X[date_col] = pd.to_datetime(X[date_col], errors="coerce")
         dates_for_plot = X[date_col].copy()
-        X[date_col] = X[date_col].astype("int64") // 10**9
+        X[date_col] = X[date_col].apply(lambda x: x.timestamp() if not pd.isnull(x) else np.nan)
     else:
         dates_for_plot = pd.Series(index=X.index, data=range(len(X)))
 
-    # ✅ Chronological split (Prophet-style)
+    # Create lag features
+    for lag in range(1, num_lags + 1):
+        X[f"lag_{lag}"] = y.shift(lag)
+
+    valid_idx = X.dropna().index
+    X = X.loc[valid_idx]
+    y = y.loc[valid_idx]
+    dates_for_plot = dates_for_plot.loc[valid_idx]
+
+    # Chronological split
     split_index = int(len(X) * (1 - test_size))
     X_train, X_test = X.iloc[:split_index], X.iloc[split_index:]
     y_train, y_test = y.iloc[:split_index], y.iloc[split_index:]
     dates_train, dates_test = dates_for_plot.iloc[:split_index], dates_for_plot.iloc[split_index:]
 
-    # Hyperparameters (default or passed)
+    # Default hyperparameters
     param_grid = {
         'objective': ['reg:squarederror'],
         'max_depth': [param_dict.get("max_depth", 6)],
@@ -62,7 +70,14 @@ def run(selectedCSVFile, param_dict=None, num_lags=5, test_size=0.2):
     # Train model
     xgb_model = xgb.XGBRegressor(random_state=42, enable_categorical=True)
     start_time = time.time()
-    grid_search = GridSearchCV(xgb_model, param_grid, scoring='neg_mean_squared_error', cv=3, verbose=1, n_jobs=1)
+    grid_search = GridSearchCV(
+        xgb_model,
+        param_grid,
+        scoring='neg_mean_squared_error',
+        cv=3,
+        verbose=1,
+        n_jobs=1
+    )
     grid_search.fit(X_train, y_train)
     end_time = time.time()
 
@@ -71,51 +86,19 @@ def run(selectedCSVFile, param_dict=None, num_lags=5, test_size=0.2):
 
     # Evaluate
     y_pred = best_model.predict(X_test)
+    mape = mean_absolute_percentage_error(y_test, y_pred)
+    realistic_accuracy = max(0, 100 - (mape * 100))
+
     results = {
         "best_params": grid_search.best_params_,
         "mae": mean_absolute_error(y_test, y_pred),
         "rmse": mean_squared_error(y_test, y_pred) ** 0.5,
-        "mape": mean_absolute_percentage_error(y_test, y_pred),
+        "mape": mape,
         "r2": r2_score(y_test, y_pred),
+        "realistic_accuracy": realistic_accuracy,
         "training_duration": round(end_time - start_time, 2)
     }
 
-    # 📊 Prophet-style forecast visualization
-    def plot_forecast_with_metrics(train_dates, train_y, test_dates, test_y, y_pred, metrics):
-        accuracy = 100 - (metrics["mape"] * 100)
-
-        fig, axs = plt.subplots(1, 2, figsize=(18, 6), gridspec_kw={'width_ratios': [4, 1]})
-        fig.suptitle("XGBoost Forecast vs Actual", fontsize=16)
-
-        # Forecast plot
-        axs[0].plot(train_dates, train_y, label="Train", color="blue", linewidth=1.5)
-        axs[0].plot(test_dates, test_y, label="Test", color="orange", linewidth=1.5)
-        axs[0].plot(test_dates, y_pred, label="Forecast", color="green", linestyle="--", linewidth=2)
-
-        axs[0].set_xlabel("Date")
-        axs[0].set_ylabel("Target Value")
-        axs[0].legend(loc="upper left")
-        axs[0].grid(True)
-
-        # Metrics panel
-        metrics_text = (
-            f"MAPE: {round(metrics['mape'] * 100, 2)}%\n"
-            f"RMSE: {round(metrics['rmse'], 2)}\n"
-            f"MAE: {round(metrics['mae'], 2)}\n"
-            f"R²: {round(metrics['r2'], 3)}\n"
-            f"Accuracy: {round(accuracy, 2)}%\n"
-            f"Train Time: {metrics['training_duration']}s"
-        )
-
-        axs[1].axis("off")
-        axs[1].text(0, 0.5, metrics_text, fontsize=14, va="center", ha="left", fontweight="bold")
-
-        plt.tight_layout()
-        plt.subplots_adjust(top=0.85)
-        plt.savefig("xgboost_forecast_with_train_test_forecast.png")
-        plt.show()
-
-    # Call plot function
     plot_forecast_with_metrics(
         train_dates=dates_train,
         train_y=y_train,
@@ -126,3 +109,57 @@ def run(selectedCSVFile, param_dict=None, num_lags=5, test_size=0.2):
     )
 
     return results
+
+def plot_forecast_with_metrics(train_dates, train_y, test_dates, test_y, y_pred, metrics):
+    fig, axs = plt.subplots(1, 2, figsize=(18, 6), gridspec_kw={'width_ratios': [4, 1]})
+    fig.suptitle("XGBoost Forecast vs Actual", fontsize=16)
+
+    train_sorted = pd.DataFrame({"dates": train_dates, "y": train_y}).sort_values(by="dates")
+    test_sorted = pd.DataFrame({"dates": test_dates, "y_true": test_y, "y_pred": y_pred}).sort_values(by="dates")
+
+    axs[0].plot(train_sorted["dates"], train_sorted["y"], label="Train (Actual)", color="blue", linewidth=1.5)
+    axs[0].plot(test_sorted["dates"], test_sorted["y_true"], label="Test (Actual)", color="orange", linewidth=1.5)
+    axs[0].plot(test_sorted["dates"], test_sorted["y_pred"], label="Test (Forecast)", color="green", linestyle="--", linewidth=2)
+
+    split_date = test_sorted["dates"].iloc[0]
+    axs[0].axvline(x=split_date, color='black', linestyle=':', linewidth=1.5, label="Train/Test Split")
+
+    axs[0].set_xlabel("Date")
+    axs[0].set_ylabel("Target Value")
+    axs[0].legend(loc="upper left")
+    axs[0].grid(True)
+
+    metrics_text = (
+        f"MAPE: {round(metrics['mape'] * 100, 2)}%\n"
+        f"RMSE: {round(metrics['rmse'], 2)}\n"
+        f"MAE: {round(metrics['mae'], 2)}\n"
+        f"R²: {round(metrics['r2'], 3)}\n"
+        f"Accuracy: {round(metrics['realistic_accuracy'], 2)}%\n"
+        f"Train Time: {metrics['training_duration']}s"
+    )
+
+    axs[1].axis("off")
+    axs[1].text(0, 0.5, metrics_text, fontsize=14, va="center", ha="left", fontweight="bold")
+
+    plt.tight_layout()
+    plt.subplots_adjust(top=0.85)
+    plt.savefig("xgboost_forecast_with_train_test_forecast.png")
+    plt.show()
+
+if __name__ == "__main__":
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument("file", help="Path to the CSV file")
+    parser.add_argument("--max_depth", type=int)
+    parser.add_argument("--learning_rate", type=float)
+    parser.add_argument("--n_estimators", type=int)
+    parser.add_argument("--subsample", type=float)
+    parser.add_argument("--colsample_bytree", type=float)
+    parser.add_argument("--reg_alpha", type=float)
+    parser.add_argument("--reg_lambda", type=float)
+    parser.add_argument("--num_lags", type=int, default=5)
+    parser.add_argument("--test_size", type=float, default=0.2)
+    args = parser.parse_args()
+
+    param_dict = {k: v for k, v in vars(args).items() if k not in ["file", "num_lags", "test_size"] and v is not None}
+    run(args.file, param_dict, num_lags=args.num_lags, test_size=args.test_size)
