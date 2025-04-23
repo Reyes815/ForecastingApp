@@ -34,7 +34,7 @@ namespace ForecastingApp
             mainForm.Show();
         }
 
-        private void RunProphetPrediction()
+        private async void RunProphetPrediction()
         {
             try
             {
@@ -72,22 +72,47 @@ namespace ForecastingApp
                     FileName = pythonExecutable,
                     Arguments = arguments,
                     UseShellExecute = false,
-                    CreateNoWindow = false
-                    //RedirectStandardOutput = true,
-                    //RedirectStandardError = true,
-                    //UseShellExecute = false,
-                    //CreateNoWindow = false
+                    CreateNoWindow = true,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true
                 };
 
-                //Process process = Process.Start(psi);
-                
-                //process.WaitForExit();
+                using (Process process = new Process())
+                {
+                    process.StartInfo = psi;
 
-                Process process = new Process { StartInfo = psi, EnableRaisingEvents = true };
+                    process.OutputDataReceived += (sender, args) =>
+                    {
+                        if (!string.IsNullOrEmpty(args.Data))
+                            Console.WriteLine("[Python STDOUT] " + args.Data);
+                    };
 
-                //stopwatch.Start();
-                process.Start();
+                    process.ErrorDataReceived += (sender, args) =>
+                    {
+                        if (!string.IsNullOrEmpty(args.Data))
+                            Console.WriteLine("[Python STDERR] " + args.Data);
+                    };
 
+                    process.Start();
+                    process.BeginOutputReadLine();
+                    process.BeginErrorReadLine();
+
+                    await Task.Run(() => process.WaitForExit());
+
+                    if (process.ExitCode == 0)
+                    {
+                        // Launch results form after successful Python script
+                        Invoke((MethodInvoker)(() =>
+                        {
+                            ProphetResults resultsForm = new ProphetResults();
+                            resultsForm.Show();
+                        }));
+                    }
+                    else
+                    {
+                        MessageBox.Show("Forecasting failed. Please check the console or output logs.", "Python Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }
             }
             catch (Exception ex)
             {
@@ -98,6 +123,7 @@ namespace ForecastingApp
 
         private void ProphetModel_load(object sender, EventArgs e)
         {
+
             string cleanedJson = suggestions.Trim();
 
             // If wrapped in ```json ... ```
@@ -114,7 +140,7 @@ namespace ForecastingApp
             try
             {
                 var json = JObject.Parse(cleanedJson);
-                StringBuilder hyperparamText = new StringBuilder("Recommended Hyperparameters:");
+                StringBuilder hyperparamText = new StringBuilder("Recommended Hyperparameters:\r\n");
 
                 foreach (var kvp in json)
                 {

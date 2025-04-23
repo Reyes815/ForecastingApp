@@ -497,6 +497,7 @@
             this.Controls.Add(this.Hyperparameters);
             this.Name = "ProphetModel";
             this.Text = "Prophet";
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.ProphetModel_FormClosed);
             this.Load += new System.EventHandler(this.ProphetModel_load);
             this.SeasonMode_grpbox.ResumeLayout(false);
             this.SeasonMode_grpbox.PerformLayout();
