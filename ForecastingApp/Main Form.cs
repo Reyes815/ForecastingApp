@@ -55,9 +55,17 @@ namespace ForecastingApp
         private async Task<(string datasetAnalysis, string modelRecommendation)> GetAnalysisFromGemini(string features)
         {
             string url = $"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={API_Key}";
-            string featureList = string.Join(", ", features);
+            string projectRoot = Directory.GetParent(Directory.GetCurrentDirectory()).Parent.Parent.FullName;
+            string findingsPath = Path.Combine(projectRoot, "Scripts", "findings.json");
 
-            string prompt = $"You are analyzing a dataset with the following features: {featureList}. " +
+            // Read findings.json content
+            string findingsText = File.Exists(findingsPath)
+                ? File.ReadAllText(findingsPath)
+                : "No findings available.";
+
+            string prompt = $"You are analyzing a dataset with the following structure: {features}.\n\n" +
+                "Based on the provided dataset and the research findings below, provide your analysis and model recommendation.\n\n" +
+                $"FINDINGS: {findingsText}\n\n" +
                 "Return your response in this exact format:\n\n" +
                 "DATASET_ANALYSIS: <Two paragraphs, 2-3 sentences each, summarizing the dataset structure, patterns, and any challenges.>\n" +
                 "MODEL_RECOMMENDATION: <Only one word — either LSTM, XGBoost, or Prophet. Do not explain the choice.>\n\n" +
@@ -88,9 +96,9 @@ namespace ForecastingApp
                     dynamic jsonResponse = JsonConvert.DeserializeObject(responseString);
                     string fullResponse = jsonResponse.candidates[0].content.parts[0].text.ToString();
 
-                    // Split using fixed markers
-                    var datasetMarker = "DATASET_ANALYSIS:";
-                    var modelMarker = "MODEL_RECOMMENDATION:";
+                    // Extract analysis and recommendation
+                    const string datasetMarker = "DATASET_ANALYSIS:";
+                    const string modelMarker = "MODEL_RECOMMENDATION:";
 
                     int datasetStart = fullResponse.IndexOf(datasetMarker);
                     int modelStart = fullResponse.IndexOf(modelMarker);
@@ -109,6 +117,7 @@ namespace ForecastingApp
                 }
             }
         }
+
 
         //Get recommended hyperparameters for Prophet model from gemini
         private async Task<string> get_Prophet_Suggestions(string features)
@@ -149,6 +158,8 @@ namespace ForecastingApp
 
         private async Task GenerateGeminiJSON(string csvFilePath)
         {
+            label_Dataset.Text = "Analyzing dataset...";
+            label_Model.Text = "Loading...";
             try
             {
                 string projectRoot = Directory.GetParent(Directory.GetCurrentDirectory()).Parent.Parent.FullName;

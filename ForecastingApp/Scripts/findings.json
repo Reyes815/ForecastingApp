@@ -1,0 +1,72 @@
+{
+    "summary_analysis": {
+        "Prophet": {
+            "synthetic_datasets": {
+                "strengths": [
+                    "Performed well on clean, single-target time series with minimal features.",
+                    "Best accuracy observed when using only date and target variable.",
+                    "Achieved over 91% accuracy on clean datasets like 'UnitsSold'."
+                ],
+                "weaknesses": [
+                    "Underperformed with feature-rich synthetic datasets like 'RetailSalesPlus'.",
+                    "High MAPE observed in datasets with many categorical columns or noise.",
+                    "Holiday toggling had inconsistent impact."
+                ]
+            },
+            "real_world_datasets": {
+                "strengths": [
+                    "Prophet maintained reasonable accuracy in predictable, seasonal datasets.",
+                    "Fast to implement and interpret due to minimal preprocessing."
+                ],
+                "weaknesses": [
+                    "Struggled with volatile datasets (e.g., Mall Sales, ElecSales) with high cardinality.",
+                    "Accuracy dropped below 0% in several noisy datasets."
+                ]
+            }
+        },
+        "XGBoost": {
+            "synthetic_datasets": {
+                "strengths": [
+                    "Performed reliably in both simple and complex feature datasets.",
+                    "Handled high-cardinality features and encoded categoricals effectively.",
+                    "Strong performance on 'RetailSalesPlus' and 'insurance_claims'."
+                ],
+                "weaknesses": [
+                    "Underperformed on small, clean datasets like 'UnitsSold'.",
+                    "Required careful tuning to avoid overfitting."
+                ]
+            },
+            "real_world_datasets": {
+                "strengths": [
+                    "Outperformed Prophet and LSTM in all datasets with complex or categorical structure.",
+                    "Resistant to outliers and strong generalization observed."
+                ],
+                "weaknesses": [
+                    "Did not model seasonality or trend explicitly.",
+                    "Lower R\u00b2 values in overly simplified or aggregated datasets."
+                ]
+            }
+        },
+        "LSTM": {
+            "synthetic_datasets": {
+                "strengths": [
+                    "Achieved highest accuracy in most synthetic datasets including 'SalesLSTM_1500'.",
+                    "Better adaptation to long-term temporal patterns as volume increases."
+                ],
+                "weaknesses": [
+                    "Struggled with small sample size or high feature complexity.",
+                    "Required larger data volume to converge and perform well."
+                ]
+            },
+            "real_world_datasets": {
+                "strengths": [
+                    "Outperformed other models in clean, temporal datasets with stable sequences."
+                ],
+                "weaknesses": [
+                    "Extreme underperformance in categorical-heavy or volatile datasets.",
+                    "High MAPE and negative R\u00b2 in real-world cases like Superstore and Nike datasets."
+                ]
+            }
+        }
+    }
+}
