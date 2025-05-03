@@ -126,3 +126,23 @@ def run(selectedCSVFile, param_dict=None, num_lags=5, test_size=0.2):
     )
 
     return results
+
+if __name__ == "__main__":
+    if len(sys.argv) != 11:
+        print(f"Error: Expected 11 arguments, but got {len(sys.argv) - 1}")
+        sys.exit(1)
+
+    selectedCSVFile = sys.argv[1]
+    num_lags = int(sys.argv[2])
+    test_size = float(sys.argv[3])
+    param_dict = {
+        "max_depth": int(sys.argv[4]),
+        "learning_rate": float(sys.argv[5]),
+        "n_estimators": int(sys.argv[6]),
+        "colsample_bytree": float(sys.argv[7]),
+        "subsample": float(sys.argv[8]),
+        "reg_alpha": float(sys.argv[9]),
+        "reg_lambda": float(sys.argv[10]),
+    }
+
+    run(selectedCSVFile, param_dict, num_lags, test_size)

@@ -46,7 +46,7 @@ def detect_id_column(df):
 def process_csv(file_path):
     try:
         # Load the CSV file
-        df = pd.read_csv(file_path)
+        df = pd.read_csv(file_path, encoding='windows-1252')
 
         # Extract feature names
         features = df.columns.tolist()
