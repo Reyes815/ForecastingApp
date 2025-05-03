@@ -368,4 +368,5 @@ venv/
 /ForecastingApp/Scripts/Graphs
 /ForecastingApp/Scripts/Saved preprocessed csv
 /ForecastingApp/Scripts/Nike Dataset.csv
+ForecastingApp/Scripts/Metrics
 *.csv
